@@ -22,4 +22,7 @@ public class Funnel extends SubsystemBase {
             motor.setControl(req);
         });
     }
+
+    
+
 }
