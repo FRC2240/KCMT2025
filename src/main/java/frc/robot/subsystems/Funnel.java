@@ -13,16 +13,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Funnel extends SubsystemBase {
     TalonFX motor = new TalonFX(Constants.Funnel.MOTOR_ID);
 
+    public Funnel() {
+        // Sets the current to the default value
+        TorqueCurrentFOC req = new TorqueCurrentFOC(Constants.Funnel.DEFAULT_CURRENT);
+        motor.setControl(req);
+    }
+
     /***
      * Spin the funnel at a certain amerage
      */
-    Command spinFunnelCommand(Current current) {
+    public Command spinFunnelCommand(Current current) {
         return Commands.runOnce(() -> {
             TorqueCurrentFOC req = new TorqueCurrentFOC(current);
             motor.setControl(req);
         });
     }
-
-    
-
 }
