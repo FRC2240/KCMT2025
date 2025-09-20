@@ -1,5 +1,6 @@
 package frc.robot;
 
+
 public final class Constants {
   public static enum RobotName {
     SABERTOOTH,
@@ -11,6 +12,7 @@ public final class Constants {
 
   public static class Funnel {
     public static final int MOTOR_ID = 21;
+    public static final int DEFAULT_CURRENT = 3;
   }
 
   public static class OperatorConstants {
