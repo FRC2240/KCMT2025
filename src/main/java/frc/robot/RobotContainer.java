@@ -4,38 +4,25 @@
 
 package frc.robot;
 
-import java.io.File;
-
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Swerve;
-import swervelib.SwerveInputStream;
 
 public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  private final Swerve drivebase = new Swerve(new File(Filesystem.getDeployDirectory(), "swerve/sabertooth"));
-
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-      () -> driverXbox.getLeftY() * -1,
-      () -> driverXbox.getLeftX() * -1)
-      .withControllerRotationAxis(driverXbox::getRightX)
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
+  private final Swerve drivebase = new Swerve(driverXbox);
+ 
 
   public RobotContainer() {
     configureBindings();
   } 
 
   private void configureBindings() {
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    // Default comand is to drive Field Oriented with Angular Velocity
+    drivebase.setDefaultCommand(drivebase.driveFieldOriented(drivebase.driveAngularVelocity));
 
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-
-    driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
+    //driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
   }
     
 
