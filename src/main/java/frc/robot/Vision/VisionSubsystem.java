@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -33,10 +34,8 @@ public class VisionSubsystem extends SubsystemBase {
     private final vision_consumer consumer;
     // empty array that can accept any object implementing the interface
     private final BaseVisionIO[] IO_base;
+    //TODO should be AutoLogged auto generated class
     private final BaseVisionIOInput[] input;
-
-    // part of my stdev
-    // public double stdev;
 
     // elipces means multiple objects of vision_IO_Base class can be passed in so
     // multiple cameras
@@ -49,6 +48,9 @@ public class VisionSubsystem extends SubsystemBase {
         this.IO_base = IO_base;
 
         this.input = new BaseVisionIOInput[IO_base.length];
+        for (int i = 0; i < IO_base.length; i++) {
+            input[i] = new BaseVisionIOInput();
+        }
 
     }
 
@@ -128,7 +130,7 @@ public class VisionSubsystem extends SubsystemBase {
                 consumer.accepts(
                     estimation.position(),
                     estimation.timestamp(),
-                    //temp
+                    VecBuilder.fill(, , )
                 );
                 */
 

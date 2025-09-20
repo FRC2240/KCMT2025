@@ -9,11 +9,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public interface BaseVisionIO {
     // AdvantageKit logging
     @AutoLog
-    public static class BaseVisionIOInput {
-        // array of april tag IDs
+    public class BaseVisionIOInput {
+        // array of april tag IDs empty by default
         public int[] april_tag_IDs = new int[0];
         public pose_estimation_data[] pose_estimation_data = new pose_estimation_data[0];
-        public rotation angle_to_tag = new rotation(new Rotation2d(), new Rotation2d());
+        //Rot. object stores angles: zero by default
+        public rotation angle_to_tag = new rotation(Rotation2d.kZero, Rotation2d.kZero);
         public boolean controller_found = false;
     }
 

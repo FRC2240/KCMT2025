@@ -40,7 +40,7 @@ public class RealLimelightVisionIO implements BaseVisionIO {
         //string keys are already defined by limelight see above
         orientation_publisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
 
-        latency_subscriber = table.getDoubleTopic("tl").subscribe(0.0);
+        latency_subscriber = table.getDoubleTopic("tl").subscribe(0.0); //these exact strings must be used
         rot_x_subscriber = table.getDoubleTopic("tx").subscribe(0.0);
         rot_y_subscriber = table.getDoubleTopic("ty").subscribe(0.0);
         metatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
@@ -51,29 +51,35 @@ public class RealLimelightVisionIO implements BaseVisionIO {
     @Override
     public void update_inputs(BaseVisionIOInput inputs) {
         // checks controller connection based of off if there was an update in the last 250 ms
-        //inputs.controller_found = ((RobotController.getFPGATime() - latency_subscriber.getLastChange()) / 1000) < 250; causing issue
+        inputs.controller_found = ((RobotController.getFPGATime() - latency_subscriber.getLastChange()) / 1000) < 250; 
         // update all inputs
-        inputs.angle_to_tag = new rotation(Rotation2d.fromDegrees(rot_x_subscriber.get()), Rotation2d.fromDegrees(rot_y_subscriber.getLastChange()));
-
-        // Set is like an unordered array without duplicates
-        Set<Integer> april_tag_IDs = new HashSet<>();
-        // in a linked list each index is call in order and leads to the next
-        List<pose_estimation_data> pose_estimation_data = new LinkedList<>();
+        inputs.angle_to_tag = 
+            new rotation(
+                Rotation2d.fromDegrees(rot_x_subscriber.get()), 
+                Rotation2d.fromDegrees(rot_y_subscriber.get()));
 
         //publisher sends to network table
         //.get gets stored function
-        orientation_publisher.accept (new double[] {rotation_supplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
+        orientation_publisher.accept(new double[] {rotation_supplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
         
         // updates network table
         NetworkTableInstance.getDefault().flush();
 
+        // Set is like an unordered array without duplicates
+        Set<Integer> april_tag_IDs = new HashSet<>();
+        // in a linked list each index is called in order and leads to the next
+        List<pose_estimation_data> pose_estimation_data = new LinkedList<>();
+
         // for each bit of raw data that has changed since the last call
         for (var raw_data : metatag2Subscriber.readQueue()) {
             System.out.println(raw_data);
-            if (raw_data.value.length == 0)
-                continue;
-            for (int i = 1; i < raw_data.value.length; i++){
-                
+            // Java short-hand
+            if (raw_data.value.length == 0) continue;
+            // 11 is the number of apriltags per side that might not be it though
+            // in example i+=7 not sure why 
+            for (int i = 11; i < raw_data.value.length; i++) { //TODO change in season
+                //adds all apriltags IDs using casting I think
+                april_tag_IDs.add((int) raw_data.value[i]);
             }
 
             // .add() appends to list
@@ -81,8 +87,8 @@ public class RealLimelightVisionIO implements BaseVisionIO {
                     new pose_estimation_data(
 
                             0, // TODO
-
-                            0.0, // document
+                            
+                            0.0, //0 bc pos has been confimed
 
                             0, // TODO
 
@@ -99,6 +105,13 @@ public class RealLimelightVisionIO implements BaseVisionIO {
             inputs.pose_estimation_data[i] = pose_estimation_data.get(i);
         }
 
+        // saves april tag IDs to objects
+        // creates new array where the number of elements is the number of tags
+        inputs.april_tag_IDs = new int[april_tag_IDs.size()];
+        int i = 0;
+        for (int ID : april_tag_IDs) {
+            inputs.april_tag_IDs[i++] = ID;
+        }
     }
 
 }
