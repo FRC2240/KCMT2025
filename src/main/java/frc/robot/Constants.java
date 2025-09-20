@@ -1,6 +1,12 @@
 package frc.robot;
 
 public final class Constants {
+  public static enum RobotName {
+    SABERTOOTH,
+    FRIDGE
+  };
+
+  public static final RobotName ROBOT_NAME = RobotName.SABERTOOTH;
   public static final double MAX_SPEED = 4;
 
   public static class Funnel {

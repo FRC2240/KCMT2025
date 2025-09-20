@@ -22,10 +22,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
@@ -39,6 +41,7 @@ import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.SwerveInputStream;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -48,8 +51,26 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
+    private final CommandXboxController driverXbox;
 
-    public Swerve(File directory) {
+    public SwerveInputStream driveAngularVelocity;
+
+    public Swerve(CommandXboxController driverController) {
+        driverXbox = driverController;
+
+        File directory = null;
+        // Gets the right config for the robot
+        switch (Constants.ROBOT_NAME) {
+            case SABERTOOTH: {
+                directory = new File(Filesystem.getDeployDirectory(), "swerve/sabertooth");
+                break;
+            }
+            case FRIDGE: {
+                directory = new File(Filesystem.getDeployDirectory(), "swerve/fridge");
+                break;
+            }
+        }
+
         boolean blueAlliance = false;
         Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                 Meter.of(4)),
@@ -82,6 +103,14 @@ public class Swerve extends SubsystemBase {
 
         setupPathPlanner();
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
+
+        driveAngularVelocity = SwerveInputStream.of(swerveDrive,
+                () -> driverXbox.getLeftY() * -1,
+                () -> driverXbox.getLeftX() * -1)
+                .withControllerRotationAxis(driverXbox::getRightX)
+                .deadband(Constants.OperatorConstants.DEADBAND)
+                .scaleTranslation(0.8)
+                .allianceRelativeControl(true);
     }
 
     @Override
