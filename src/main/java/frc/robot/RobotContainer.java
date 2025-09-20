@@ -16,7 +16,7 @@ import swervelib.SwerveInputStream;
 
 public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  private final Swerve drivebase = new Swerve(new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final Swerve drivebase = new Swerve(new File(Filesystem.getDeployDirectory(), "swerve/sabertooth"));
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> driverXbox.getLeftY() * -1,
