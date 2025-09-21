@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -15,7 +16,7 @@ public class Funnel extends SubsystemBase {
 
     public Funnel() {
         // Sets the current to the default value
-        TorqueCurrentFOC req = new TorqueCurrentFOC(Constants.Funnel.DEFAULT_CURRENT);
+        ControlRequest req = new TorqueCurrentFOC(Constants.Funnel.DEFAULT_CURRENT);
         motor.setControl(req);
     }
 
@@ -23,12 +24,9 @@ public class Funnel extends SubsystemBase {
      * Spin the funnel at a certain amerage
      */
     public Command spinFunnelCommand(Current current) {
-        return Commands.runOnce(() -> {
-            TorqueCurrentFOC req = new TorqueCurrentFOC(current);
+        return Commands.run(() -> {
+            ControlRequest req = new TorqueCurrentFOC(current);
             motor.setControl(req);
         });
     }
-
-    
-
 }
