@@ -23,7 +23,7 @@ public class Grabber {
         return distance.compareTo(Constants.Grabber.INTAKE_THRESHOLD) <= 0;
     }
 
-    private Command spinCommand(Current current) {
+    public Command spinCommand(Current current) {
         return Commands.run(() -> {
             ControlRequest req = new TorqueCurrentFOC(current);
             motor.setControl(req);
@@ -44,6 +44,10 @@ public class Grabber {
 
     public Command extakeAlgaeCommand() {
         return spinCommand(Constants.Grabber.EXTAKE_ALGAE_CURRENT);
+    }
+
+    public Command idleCommand() {
+        return spinCommand(Amp.of(0));
     }
 
     public Command coastCommand() {

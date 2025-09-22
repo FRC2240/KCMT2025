@@ -4,34 +4,124 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
+import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "constants." on every state
 
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
   final CommandXboxController stick1 = new CommandXboxController(1);
 
   private final Swerve drivebase = new Swerve(stick0);
+  private final Funnel funnel = new Funnel();
   private final Grabber grabber = new Grabber();
   private final Wrist wrist = new Wrist();
   private final Elevator elevator = new Elevator();
 
   private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
- 
 
   public RobotContainer() {
     configureBindings();
-  } 
+  }
 
   private void configureBindings() {
     // Default comand is to drive Field Oriented with Angular Velocity
     drivebase.setDefaultCommand(drivebase.driveFieldOriented(drivebase.driveAngularVelocity));
 
-    //driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
+    funnel.setDefaultCommand(funnel.spinCommand());
 
+    // driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
+
+    // Intake coral
+    stick0.leftBumper().and(stick0.leftTrigger().negate())
+        .onTrue(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand()));
+
+    // Intake Algae from ground
+    stick0.leftBumper().and(stick0.leftTrigger())
+        .onTrue(setStateCommand(ManipulatorStates.GROUND_ALGAE).alongWith(grabber.intakeAlgaeCommand()));
+
+    // Goes to algae l2
+    stick0.a().and(stick0.leftTrigger())
+        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L2).alongWith(grabber.idleCommand()));
+
+    // Goes to algae l3
+    stick0.x().and(stick0.leftTrigger())
+        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L3).alongWith(grabber.idleCommand()));
+
+    // Goes to barge
+    stick0.leftTrigger().and(stick0.y())
+        .onTrue(setStateCommand(ManipulatorStates.BARGE));
+
+    // Goes to processor
+    stick0.b().and(stick0.leftTrigger())
+        .onTrue(setStateCommand(ManipulatorStates.PROCESSOR));
+
+    // Scores
+    stick0.rightBumper().and(stick0.leftTrigger().negate())
+        .onTrue(scoreCommand());
+
+    // Extakes algae
+    stick0.rightBumper().and(stick0.leftBumper())
+        .onTrue(grabber.extakeAlgaeCommand());
+
+    // Goes to l4
+    stick0.y().and(stick0.leftTrigger().negate())
+        .onTrue(setStateCommand(ManipulatorStates.L4));
+
+    // Goes to l3
+    stick0.x().and(stick0.leftTrigger().negate())
+        .onTrue(setStateCommand(ManipulatorStates.L3));
+
+    // Goes to l2
+    stick0.a().and(stick0.leftTrigger().negate())
+        .onTrue(setStateCommand(ManipulatorStates.L2));
+
+    // Goes to l1
+    stick0.b()
+        .onTrue(setStateCommand(ManipulatorStates.L1));
+
+    // Idle
+    stick0.rightTrigger()
+        .onTrue(setStateCommand(ManipulatorStates.IDLE).alongWith(grabber.idleCommand()));
+
+    // Rezero wrist
+    stick1.start()
+        .whileTrue(wrist.rezeroCommand());
+
+    // Offest wrist up
+    stick1.y()
+        .onTrue(wrist.offsetCommand(Constants.Wrist.OFFSET_AMOUNT));
+
+    // Offset wrist down
+    stick1.b()
+        .onTrue(wrist.offsetCommand(Constants.Wrist.OFFSET_AMOUNT.times(-1)));
+
+    // Offset elevator up
+    stick1.x()
+        .onTrue(elevator.offsetCommand(Constants.Elevator.OFFSET_AMOUNT));
+
+    // Offset elevator down
+    stick1.a()
+        .onTrue(elevator.offsetCommand(Constants.Elevator.OFFSET_AMOUNT.times(-1)));
+
+    // Align to left side
+    
+
+    // Align to right side
+
+
+    // Ground algae intake
+    stick1.rightTrigger()
+        .onTrue(setStateCommand(ManipulatorStates.GROUND_ALGAE));
+
+    // Funnel toggle
+    stick1.leftTrigger()
+        .toggleOnTrue(funnel.stopCommand());
   }
 
   private Command setStateCommand(ManipulatorState target) {
@@ -42,20 +132,30 @@ public class RobotContainer {
     Command wristCommand = wrist.setAngleCommand(target.wristPos);
 
     // Special cases where elevator moves first
-    for (ManipulatorState state : Constants.ManipulatorStates.ELEVATOR_FIRST_STATES) {
-      if (target.equals(state)) return elevatorCommand.andThen(wristCommand);
+    for (ManipulatorState state : ManipulatorStates.ELEVATOR_FIRST_STATES) {
+      if (target.equals(state))
+        return elevatorCommand.andThen(wristCommand);
     }
 
     // Special cases where wrist moves first
-    for (ManipulatorState state : Constants.ManipulatorStates.WRIST_FIRST_STATES) {
-      if (target.equals(state)) return wristCommand.andThen(elevatorCommand);
+    for (ManipulatorState state : ManipulatorStates.WRIST_FIRST_STATES) {
+      if (target.equals(state))
+        return wristCommand.andThen(elevatorCommand);
     }
-    if (lastState.equals(Constants.ManipulatorStates.BARGE)) return wristCommand.andThen(elevatorCommand);
+    if (lastState.equals(ManipulatorStates.BARGE))
+      return wristCommand.andThen(elevatorCommand);
 
     // Base case where elevator and wrist move together
     return wristCommand.alongWith(elevatorCommand);
   }
-    
+
+  private Command scoreCommand() {
+    if (currentState.equals(ManipulatorStates.L1)) {
+      return grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT);
+    }
+
+    return wrist.setAngleCommand(ManipulatorStates.POST_SCORE_WRIST_ANGLE).alongWith(grabber.coastCommand());
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
