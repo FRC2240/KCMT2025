@@ -7,11 +7,19 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.*;
+import frc.robot.utils.ManipulatorState;
 
 public class RobotContainer {
-  final CommandXboxController driverXbox = new CommandXboxController(0);
-  private final Swerve drivebase = new Swerve(driverXbox);
+  final CommandXboxController stick0 = new CommandXboxController(0);
+  final CommandXboxController stick1 = new CommandXboxController(1);
+
+  private final Swerve drivebase = new Swerve(stick0);
+  private final Grabber grabber = new Grabber();
+  private final Wrist wrist = new Wrist();
+  private final Elevator elevator = new Elevator();
+
+  private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
  
 
   public RobotContainer() {
@@ -23,6 +31,29 @@ public class RobotContainer {
     drivebase.setDefaultCommand(drivebase.driveFieldOriented(drivebase.driveAngularVelocity));
 
     //driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
+
+  }
+
+  private Command setStateCommand(ManipulatorState target) {
+    ManipulatorState lastState = currentState;
+    currentState = target;
+
+    Command elevatorCommand = elevator.setPositionCommand(target.elevatorPos);
+    Command wristCommand = wrist.setAngleCommand(target.wristPos);
+
+    // Special cases where elevator moves first
+    for (ManipulatorState state : Constants.ManipulatorStates.ELEVATOR_FIRST_STATES) {
+      if (target.equals(state)) return elevatorCommand.andThen(wristCommand);
+    }
+
+    // Special cases where wrist moves first
+    for (ManipulatorState state : Constants.ManipulatorStates.WRIST_FIRST_STATES) {
+      if (target.equals(state)) return wristCommand.andThen(elevatorCommand);
+    }
+    if (lastState.equals(Constants.ManipulatorStates.BARGE)) return wristCommand.andThen(elevatorCommand);
+
+    // Base case where elevator and wrist move together
+    return wristCommand.alongWith(elevatorCommand);
   }
     
 
