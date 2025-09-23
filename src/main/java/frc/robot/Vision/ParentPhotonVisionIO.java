@@ -2,10 +2,10 @@ package frc.robot.Vision;
 
 import java.util.Set;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+
+import static frc.robot.Vision.VisionConstants.april_tag_layout;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,8 +58,8 @@ public class ParentPhotonVisionIO implements BaseVisionIO{
                 //calculate avg tag distance
                 double average_tag_distance = 0.0;
                 int i = 0;
-                for (var target : raw_data.targets) {
-                    average_tag_distance += target.bestCameraToTarget.getTranslation().getNorm();
+                for (var tag : raw_data.targets) {
+                    average_tag_distance += tag.bestCameraToTarget.getTranslation().getNorm();
                     i++;
                 }
                 average_tag_distance /= i;
@@ -83,10 +83,54 @@ public class ParentPhotonVisionIO implements BaseVisionIO{
 
                             vision_configuration_type.PHOTOVISION));
 
-            } else if() {
+            } else if(!raw_data.targets.isEmpty()) { //single tag
+                var tag = raw_data.targets.get(0);
 
+                //calc bot pose
+                var tag_pos = april_tag_layout.getTagPose(tag.fiducialId);
+                if (tag_pos.isPresent()) {
+                    Transform3d feild_to_tag =
+                        new Transform3d(tag_pos.get().getTranslation(), tag_pos.get().getRotation());
+                    Transform3d cam_to_tag = tag.bestCameraToTarget;
+                    Transform3d feild_to_cam = feild_to_tag.plus(cam_to_tag.inverse());
+                    Transform3d feild_to_bot = feild_to_cam.plus(camera_pos.inverse());
+                    Pose3d bot_pos = new Pose3d(feild_to_bot.getTranslation(), feild_to_bot.getRotation());
+
+                    //add tag IDs
+                    april_tag_IDs.add((short) tag.fiducialId);
+
+                    // add data
+                    pose_estimation_data.add(
+                    new pose_estimation_data(
+
+                            raw_data.getTimestampSeconds(), 
+                            
+                            tag.poseAmbiguity, 
+
+                            1, 
+
+                            cam_to_tag.getTranslation().getNorm(), 
+
+                            bot_pos, 
+
+                            vision_configuration_type.PHOTOVISION));
+                }
             }
             
+        }
+        
+        // saves estimation data to objects
+        inputs.pose_estimation_data = new pose_estimation_data[pose_estimation_data.size()];
+        for (int i = 0; i < pose_estimation_data.size(); i++) {
+            inputs.pose_estimation_data[i] = pose_estimation_data.get(i);
+        }
+
+        // saves april tag IDs to objects
+        // creates new array where the number of elements is the number of tags
+        inputs.april_tag_IDs = new int[april_tag_IDs.size()];
+        int i = 0;
+        for (int ID : april_tag_IDs) {
+            inputs.april_tag_IDs[i++] = ID;
         }
     }  
 }

@@ -1,6 +1,5 @@
 package frc.robot.Vision;
 
-import java.lang.ModuleLayer.Controller;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.function.Supplier;
@@ -101,6 +100,7 @@ public class RealLimelightVisionIO implements BaseVisionIO {
         }
 
         // saves estimation data to objects
+        inputs.pose_estimation_data = new pose_estimation_data[pose_estimation_data.size()];
         for (int i = 0; i < pose_estimation_data.size(); i++) {
             inputs.pose_estimation_data[i] = pose_estimation_data.get(i);
         }
