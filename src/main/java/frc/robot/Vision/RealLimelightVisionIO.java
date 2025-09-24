@@ -1,4 +1,4 @@
-package frc.robot.Vision;
+package frc.robot.vision;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,13 +7,14 @@ import java.util.Set;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 //import java.util.function.Supplier;
 //import edu.wpi.first.math.geometry.Rotation2d;
@@ -70,14 +71,16 @@ public class RealLimelightVisionIO implements BaseVisionIO {
         List<pose_estimation_data> pose_estimation_data = new LinkedList<>();
 
         // for each bit of raw data that has changed since the last call
-        for (var raw_data : metatag2Subscriber.readQueue()) {
+        for (var raw_data : metatag1Subscriber.readQueue()) {
             System.out.println(raw_data);
             // Java short-hand
             if (raw_data.value.length == 0) continue;
-            // 11 is the number of apriltags per side that might not be it though
-            // in example i+=7 not sure why 
-            for (int i = 11; i < raw_data.value.length; i++) { //TODO change in season
-                //adds all apriltags IDs using casting I think
+            // 11 is that tags start with
+            //read this
+            //https://github.com/LimelightVision/limelightlib-wpijava/blob/main/LimelightHelpers.java
+            // lines 700-800
+            for (int i = 11; i < raw_data.value.length; i+=7) { 
+                //TODO document here
                 april_tag_IDs.add((int) raw_data.value[i]);
             }
 
@@ -85,15 +88,48 @@ public class RealLimelightVisionIO implements BaseVisionIO {
             pose_estimation_data.add(
                     new pose_estimation_data(
 
-                            0, // TODO
+                            (raw_data.timestamp * 1.0e-6)-(raw_data.value[6] * 1.0e-3) , //raw_data.value[6] is latency
                             
-                            0.0, //0 bc pos has been confimed
+                            // if there is more than one tag takes a non zero ambiguity
+                            raw_data.value.length >= 18 ? raw_data.value[17] : 0.0, 
 
-                            0, // TODO
+                            (int) raw_data.value[7], // tag count
 
-                            0, // TODO
+                            raw_data.value[9], // avg tag distance
 
-                            null, // TODO
+                            parse(raw_data.value), //pos
+
+                            vision_configuration_type.METATAG_1));
+
+        }
+
+        for (var raw_data : metatag2Subscriber.readQueue()) {
+            System.out.println(raw_data);
+            // Java short-hand
+            if (raw_data.value.length == 0) continue;
+            // 11 is that tags start with
+            //read this
+            //https://github.com/LimelightVision/limelightlib-wpijava/blob/main/LimelightHelpers.java
+            // lines 700-800
+            for (int i = 11; i < raw_data.value.length; i+=7) { 
+                //TODO document here
+                april_tag_IDs.add((int) raw_data.value[i]);
+            }
+
+            // .add() appends to list
+            pose_estimation_data.add(
+                    new pose_estimation_data(
+
+                            (raw_data.timestamp * 1.0e-6)-(raw_data.value[6] * 1.0e-3) , //raw_data.value[6] is latency
+                            
+                            // inhereintly certain
+                            0.0, 
+
+                            (int) raw_data.value[7], // tag count
+
+                            raw_data.value[9], // avg tag distance
+
+                            parse(raw_data.value), // pos
 
                             vision_configuration_type.METATAG_2));
 
@@ -113,5 +149,18 @@ public class RealLimelightVisionIO implements BaseVisionIO {
             inputs.april_tag_IDs[i++] = ID;
         }
     }
-
+    
+    private static Pose3d parse(double limelight_array[]){
+        return new Pose3d(
+            limelight_array[0],
+            limelight_array[1],
+            limelight_array[2],
+            new Rotation3d(
+                Units.degreesToRadians(limelight_array[3]),
+                Units.degreesToRadians(limelight_array[4]),
+                Units.degreesToRadians(limelight_array[5])
+            )
+        );
+    }
+    
 }

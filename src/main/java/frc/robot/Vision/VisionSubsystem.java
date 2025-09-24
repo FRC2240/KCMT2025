@@ -1,15 +1,13 @@
-package frc.robot.Vision;
+package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Vision.BaseVisionIO.BaseVisionIOInput;
-import frc.robot.Vision.BaseVisionIO.BaseVisionIOInput;
-import frc.robot.Vision.VisionConstants;
+import frc.robot.vision.VisionConstants;
+import frc.robot.vision.BaseVisionIO.BaseVisionIOInput;
 
-import static frc.robot.Vision.VisionConstants.*;
+import static frc.robot.vision.VisionConstants.*;
 
-import java.io.ObjectInputStream.GetField;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
