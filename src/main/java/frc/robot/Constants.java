@@ -1,6 +1,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
@@ -50,6 +51,7 @@ public final class Constants {
     public static final int MOTOR_ID = 5;
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(2);
+    public static final Angle POSITION_THRESHOLD = Degrees.of(8);
   }
 
   public static class Elevator {
