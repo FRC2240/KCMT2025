@@ -2,10 +2,13 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.units.measure.Current;
@@ -17,6 +20,17 @@ import frc.robot.Constants;
 public class Grabber {
     private TimeOfFlight sensor = new TimeOfFlight(Constants.Grabber.SENSOR_ID);
     private TalonFX motor = new TalonFX(Constants.Grabber.MOTOR_ID);
+
+    public Grabber() {
+        TalonFXConfiguration conf = new TalonFXConfiguration();
+
+        conf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        conf.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        conf.Slot0.kP = 10;
+        conf.Slot0.kS = 6;
+        
+        motor.getConfigurator().apply(conf);
+    }
 
     public boolean has_gp() {
         Distance distance = Millimeters.of(sensor.getRange());
