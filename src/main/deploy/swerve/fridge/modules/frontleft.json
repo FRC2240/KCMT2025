@@ -7,17 +7,17 @@
   "drive": {
     "type": "krakenx60foc",
     "id": 60,
-    "canbus": "Drive"
+    "canbus": "swervecan"
   },
   "angle": {
     "type": "falcon500foc",
     "id": 61,
-    "canbus": "Drive"
+    "canbus": "swervecan"
   },
   "encoder": {
     "type": "cancoder",
     "id": 62,
-    "canbus": "Drive"
+    "canbus": "swervecan"
   },
   "inverted": {
     "drive": false,

@@ -25,7 +25,7 @@ public final class Constants {
     FRIDGE
   };
 
-  public static final RobotName ROBOT_NAME = RobotName.SABERTOOTH;
+  public static final RobotName ROBOT_NAME = RobotName.FRIDGE;
   public static final double MAX_SPEED = 4;
 
   public final static class ManipulatorStates {

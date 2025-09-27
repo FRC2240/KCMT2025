@@ -36,9 +36,9 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.Alignment;
-import frc.robot.vision.RealLimelightVisionIO;
-import frc.robot.vision.SimPhotonVisionIO;
-import frc.robot.vision.Vision;
+//import frc.robot.vision.RealLimelightVisionIO;
+//import frc.robot.vision.SimPhotonVisionIO;
+//import frc.robot.vision.Vision;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +60,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
-    private final Vision vision;
+    //private final Vision vision;
     private final CommandXboxController driverXbox;
 
     public SwerveInputStream driveAngularVelocity;
@@ -114,6 +114,7 @@ public class Swerve extends SubsystemBase {
         // Stop the odometry thread if we are using vision to synchronize updates
         // better.
 
+        /*
         swerveDrive.stopOdometryThread();
         if (!SwerveDriveTelemetry.isSimulation) {
             vision = new Vision(this::addVisionMeasurement,
@@ -124,6 +125,7 @@ public class Swerve extends SubsystemBase {
                     new SimPhotonVisionIO("camera0", swerveDrive::getPose, Constants.Vision.CAMERA_0_POS),
                     new SimPhotonVisionIO("camera1", swerveDrive::getPose, Constants.Vision.CAMERA_1_POS));
         }
+        */
 
         setupPathPlanner();
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
