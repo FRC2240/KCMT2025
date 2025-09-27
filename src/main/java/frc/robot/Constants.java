@@ -7,6 +7,10 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -125,5 +129,26 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final double DEADBAND = 0.5;
+  }
+
+  public static class Vision {
+    //stores tag layout for the current year's feild
+    public static AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+    //assuming stores distance of cameras from center of bot
+    public static Transform3d CAMERA_0_POS = new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)); // TBD
+    public static Transform3d CAMERA_1_POS = new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)); // TBD
+
+    public static double MAX_UNCERTAINTY = 0.0; // TBD
+    public static double MAX_Z_ERROR = 0.25; //TBD
+
+    // Standard deviation coefficents, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double LINEAR_STDEV_COEFF = 0.02; // Meters
+    public static double ANGULAR_STDEV_COEFF = 0.06; // Radians
+
+    // Multipliers to apply for MegaTag 2 observations
+    public static double LINEAR_STDEV_MEGATAG_2_COEFF = 0.5; // More stable than full 3D solve
+    public static double ANGULAR_STDEV_MEGATAG_2_COEFF = Double.POSITIVE_INFINITY; // No rotation data available    
   }
 }
