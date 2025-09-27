@@ -17,5 +17,13 @@ public class VisionConstants {
     public static double max_uncertainty = 0.0; // TBD
     public static double max_z_error = 0.25; //TBD
 
-    //example has a max z error doesn't seem neceary
+    // Standard deviation coefficents, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double linear_stdev_coeff = 0.02; // Meters
+    public static double angular_stdev_coeff = 0.06; // Radians
+
+    // Multipliers to apply for MegaTag 2 observations
+    public static double linear_stdev_MEGATAG_2_coeff = 0.5; // More stable than full 3D solve
+    public static double angular_stdev_MEGATAG_2_coeff = Double.POSITIVE_INFINITY; // No rotation data available
+
 }

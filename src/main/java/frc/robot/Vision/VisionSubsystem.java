@@ -3,17 +3,13 @@ package frc.robot.vision;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.vision.VisionConstants;
-import frc.robot.vision.BaseVisionIO.BaseVisionIOInput;
+import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
 import static frc.robot.vision.VisionConstants.*;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,7 +20,7 @@ import edu.wpi.first.math.numbers.N3;
 //import edu.wpi.first.wpilibj.Alert; disconnected logging
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -32,8 +28,8 @@ public class VisionSubsystem extends SubsystemBase {
     private final vision_consumer consumer;
     // empty array that can accept any object implementing the interface
     private final BaseVisionIO[] IO_base;
-    //TODO should be AutoLogged auto generated class
-    private final BaseVisionIOInput[] input;
+    // AutoLogged auto generated class
+    private final BaseVisionIOInputAutoLogged[] input;
 
     // elipces means multiple objects of vision_IO_Base class can be passed in so
     // multiple cameras
@@ -45,14 +41,14 @@ public class VisionSubsystem extends SubsystemBase {
         this.consumer = consumer;
         this.IO_base = IO_base;
 
-        this.input = new BaseVisionIOInput[IO_base.length];
+        this.input = new BaseVisionIOInputAutoLogged[IO_base.length];
         for (int i = 0; i < IO_base.length; i++) {
-            input[i] = new BaseVisionIOInput();
+            input[i] = new BaseVisionIOInputAutoLogged();
         }
 
     }
-
-    public Rotation2d getTargetX(int cameraIndex) {
+    // returns X angle to  nearest tag, method
+    public Rotation2d getAngleX(int cameraIndex) {
         return input[cameraIndex].angle_to_tag.rot_x();
     }
 
@@ -61,7 +57,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         for (int i = 0; i < IO_base.length; i++) {
             IO_base[i].update_inputs(input[i]);
-            // Logger.processInputs("Vision", input[i]);
+            Logger.processInputs("Vision/Camera" + i, input[i]);
         }
 
         // stores data for all cameras
@@ -114,24 +110,39 @@ public class VisionSubsystem extends SubsystemBase {
                 }
 
                 // calculate stdev
+                // stdev is an aproximation it is hueristic as the real thing can't be found
+                //for some reason this baseline works with a multiplier to find x, y, and theta stdevs
                 double stdev_factor = Math.pow(estimation.average_tag_distance(), 2.0)/estimation.april_tag_count();
-                
+                double linear_stdev = linear_stdev_coeff * stdev_factor;
+                double angular_stdev = angular_stdev_coeff * stdev_factor;
+
+                //MTag2 configs
+                if (estimation.type() == vision_configuration_type.METATAG_2) {
+                    linear_stdev *= linear_stdev_MEGATAG_2_coeff;
+                    angular_stdev *= angular_stdev_MEGATAG_2_coeff;
+                }
+
+                // TODO used if one camera is more trustworthy
+                /* 
+                if () {
+                    
+                }
+                */
 
 
-                // my stdev
+        
                 
          
 
                 
                 //sends vision data
-                /* 
+                
                 consumer.accepts(
-                    estimation.position(),
                     estimation.timestamp(),
-                    VecBuilder.fill(, , )
-                );
-                */
-
+                    estimation.position().toPose2d(),
+                    // x, y, and theta
+                    //x = y
+                    VecBuilder.fill(linear_stdev, linear_stdev, angular_stdev));
             }
 
             //logs data by camera
