@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
+import frc.robot.Constants.Alignment;
 import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "constants." on every state
 
 public class RobotContainer {
@@ -108,13 +109,15 @@ public class RobotContainer {
         .onTrue(elevator.offsetCommand(Constants.Elevator.OFFSET_AMOUNT.times(-1)));
 
     // Align to left side
-
+    stick1.povLeft()
+        .onTrue(drivebase.alignCommand(Alignment.LEFT));
 
     // Align to right side
-
+    stick0.povRight()
+        .onTrue(drivebase.alignCommand(Alignment.RIGHT));
 
     // Ground algae intake
-    stick1.rightTrigger()
+    stick0.rightTrigger()
         .onTrue(setStateCommand(ManipulatorStates.GROUND_ALGAE));
 
     // Funnel toggle

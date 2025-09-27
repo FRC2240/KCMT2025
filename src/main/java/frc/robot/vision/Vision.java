@@ -133,11 +133,6 @@ public class Vision extends SubsystemBase {
                 }
                 */
 
-
-        
-                
-         
-
                 
                 //sends vision data
                 

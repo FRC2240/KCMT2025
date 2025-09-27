@@ -35,7 +35,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.Alignment;
 import frc.robot.vision.RealLimelightVisionIO;
+import frc.robot.vision.SimPhotonVisionIO;
 import frc.robot.vision.Vision;
 
 import java.io.File;
@@ -109,9 +111,19 @@ public class Swerve extends SubsystemBase {
         // over the internal encoder and push the offsets onto it. Throws warning if not
         // possible
 
-        // Stop the odometry thread if we are using vision to synchronize updates better.
-        swerveDrive.stopOdometryThread(); 
-        vision = new Vision(this::addVisionMeasurement, new RealLimelightVisionIO("limelight-left", swerveDrive::getPitch), new RealLimelightVisionIO("limelight-right", swerveDrive::getPitch));
+        // Stop the odometry thread if we are using vision to synchronize updates
+        // better.
+
+        swerveDrive.stopOdometryThread();
+        if (!SwerveDriveTelemetry.isSimulation) {
+            vision = new Vision(this::addVisionMeasurement,
+                    new RealLimelightVisionIO("limelight-left", swerveDrive::getPitch),
+                    new RealLimelightVisionIO("limelight-right", swerveDrive::getPitch));
+        } else {
+            vision = new Vision(this::addVisionMeasurement,
+                    new SimPhotonVisionIO("camera0", swerveDrive::getPose, Constants.Vision.CAMERA_0_POS),
+                    new SimPhotonVisionIO("camera1", swerveDrive::getPose, Constants.Vision.CAMERA_1_POS));
+        }
 
         setupPathPlanner();
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
@@ -127,7 +139,7 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //swerveDrive.updateOdometry();
+        swerveDrive.updateOdometry();
     }
 
     @Override
@@ -137,6 +149,7 @@ public class Swerve extends SubsystemBase {
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
         swerveDrive.addVisionMeasurement(robot_pose, timestamp);
     }
+
     /**
      * Setup AutoBuilder for PathPlanner.
      */
@@ -676,10 +689,30 @@ public class Swerve extends SubsystemBase {
         return swerveDrive;
     }
 
-    public Command alignCommand() {
-        Pose2d currentPose = getPose();
-        
+    public Command alignCommand(int leftright) {
+        DriverStation.silenceJoystickConnectionWarning(true);
+        return Commands.deferredProxy(() -> {
+            Pose2d currentPose = getPose();
 
-        return Commands.none();
+            double bestDist = Double.MAX_VALUE;
+            int bestSide = -1;
+            for (int i = 0; i < Alignment.REEF_POSITIONS.length; i++) {
+                Pose2d[] positions = Constants.Alignment.REEF_POSITIONS[i];
+                Pose2d middlePose = positions[0].interpolate(positions[1], 0.5);
+    
+                double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
+                if (distance < bestDist) {
+                    bestDist = distance;
+                    bestSide = i;
+                }
+            }
+
+            if (bestSide == -1) {
+                System.out.println("NONE");
+                return Commands.none();
+            }
+
+            return this.driveToPose(Constants.Alignment.REEF_POSITIONS[bestSide][leftright]);
+        });
     }
 }
