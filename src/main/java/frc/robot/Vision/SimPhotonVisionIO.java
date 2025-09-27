@@ -7,7 +7,7 @@ import org.photonvision.simulation.VisionSystemSim;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 
-import static frc.robot.vision.VisionConstants.april_tag_layout;
+import static frc.robot.Constants.Vision.APRIL_TAG_LAYOUT;
 
 import java.util.function.Supplier;
 
@@ -27,11 +27,11 @@ public class SimPhotonVisionIO extends ParentPhotonVisionIO {
         //
         if (vision_sim == null) {
             vision_sim = new VisionSystemSim("null");
-            vision_sim.addAprilTags(april_tag_layout);
+            vision_sim.addAprilTags(APRIL_TAG_LAYOUT);
         }
         //add sim camera
         var camera_properties = new SimCameraProperties();
-        camera_sim = new PhotonCameraSim(camera, camera_properties, april_tag_layout);
+        camera_sim = new PhotonCameraSim(camera, camera_properties, APRIL_TAG_LAYOUT);
         vision_sim.addCamera(camera_sim, camera_pos);
     }
     

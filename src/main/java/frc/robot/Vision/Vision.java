@@ -1,11 +1,16 @@
 package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
-import static frc.robot.vision.VisionConstants.*;
+import static frc.robot.Constants.Vision.ANGULAR_STDEV_COEFF;
+import static frc.robot.Constants.Vision.ANGULAR_STDEV_MEGATAG_2_COEFF;
+import static frc.robot.Constants.Vision.LINEAR_STDEV_COEFF;
+import static frc.robot.Constants.Vision.LINEAR_STDEV_MEGATAG_2_COEFF;
+import static frc.robot.Constants.Vision.APRIL_TAG_LAYOUT;
+import static frc.robot.Constants.Vision.MAX_UNCERTAINTY;
+import static frc.robot.Constants.Vision.MAX_Z_ERROR;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +27,7 @@ import edu.wpi.first.math.numbers.N3;
 import org.littletonrobotics.junction.Logger;
 
 
-public class VisionSubsystem extends SubsystemBase {
+public class Vision extends SubsystemBase {
 
     // empty but can hold an object that implements vision consumer
     private final vision_consumer consumer;
@@ -33,7 +38,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // elipces means multiple objects of vision_IO_Base class can be passed in so
     // multiple cameras
-    public VisionSubsystem(vision_consumer consumer, BaseVisionIO... IO_base) {
+    public Vision(vision_consumer consumer, BaseVisionIO... IO_base) {
         // this passes the private final consumer in
         // so running the method uses parameters to define private final variables which
         // then can't be changed
@@ -76,7 +81,7 @@ public class VisionSubsystem extends SubsystemBase {
 
             // each tag seen ID appends its position to tag poses
             for (int tag_ID : input[i].april_tag_IDs) {
-                var tag_pose = VisionConstants.april_tag_layout.getTagPose(tag_ID);
+                var tag_pose = APRIL_TAG_LAYOUT.getTagPose(tag_ID);
                 if (tag_pose.isPresent()) {
                     tag_poses.add(tag_pose.get());
                 }
@@ -90,13 +95,13 @@ public class VisionSubsystem extends SubsystemBase {
                 // potential point of failure
                 boolean reject_pose = estimation.april_tag_count() == 0 // rejects estimates made without tags
                         || (estimation.april_tag_count() == 1
-                                && estimation.uncertainty() > VisionConstants.max_uncertainty)
-                        || (Math.abs(estimation.position().getX())  > VisionConstants.max_z_error)
+                                && estimation.uncertainty() > MAX_UNCERTAINTY)
+                        || (Math.abs(estimation.position().getX())  > MAX_Z_ERROR)
 
                         || ((estimation.position().getX() > 0.0)
-                            &&  (estimation.position().getX() < april_tag_layout.getFieldLength()))
+                            &&  (estimation.position().getX() < APRIL_TAG_LAYOUT.getFieldLength()))
                         || ((estimation.position().getY() > 0.0) 
-                            && (estimation.position().getY() < april_tag_layout.getFieldWidth()));
+                            && (estimation.position().getY() < APRIL_TAG_LAYOUT.getFieldWidth()));
 
                 robot_poses.add(estimation.position()); // stores all robot positions for a camera
                 if (!reject_pose) {
@@ -113,13 +118,13 @@ public class VisionSubsystem extends SubsystemBase {
                 // stdev is an aproximation it is hueristic as the real thing can't be found
                 //for some reason this baseline works with a multiplier to find x, y, and theta stdevs
                 double stdev_factor = Math.pow(estimation.average_tag_distance(), 2.0)/estimation.april_tag_count();
-                double linear_stdev = linear_stdev_coeff * stdev_factor;
-                double angular_stdev = angular_stdev_coeff * stdev_factor;
+                double linear_stdev = LINEAR_STDEV_COEFF * stdev_factor;
+                double angular_stdev = ANGULAR_STDEV_COEFF * stdev_factor;
 
                 //MTag2 configs
                 if (estimation.type() == vision_configuration_type.METATAG_2) {
-                    linear_stdev *= linear_stdev_MEGATAG_2_coeff;
-                    angular_stdev *= angular_stdev_MEGATAG_2_coeff;
+                    linear_stdev *= LINEAR_STDEV_MEGATAG_2_COEFF;
+                    angular_stdev *= ANGULAR_STDEV_MEGATAG_2_COEFF;
                 }
 
                 // TODO used if one camera is more trustworthy
