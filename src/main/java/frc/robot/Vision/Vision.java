@@ -1,8 +1,6 @@
 package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
 import static frc.robot.vision.VisionConstants.*;
@@ -22,7 +20,7 @@ import edu.wpi.first.math.numbers.N3;
 import org.littletonrobotics.junction.Logger;
 
 
-public class VisionSubsystem extends SubsystemBase {
+public class Vision extends SubsystemBase {
 
     // empty but can hold an object that implements vision consumer
     private final vision_consumer consumer;
@@ -33,7 +31,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // elipces means multiple objects of vision_IO_Base class can be passed in so
     // multiple cameras
-    public VisionSubsystem(vision_consumer consumer, BaseVisionIO... IO_base) {
+    public Vision(vision_consumer consumer, BaseVisionIO... IO_base) {
         // this passes the private final consumer in
         // so running the method uses parameters to define private final variables which
         // then can't be changed
