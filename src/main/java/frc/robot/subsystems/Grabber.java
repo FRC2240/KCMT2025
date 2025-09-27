@@ -22,6 +22,9 @@ public class Grabber extends SubsystemBase {
     private TimeOfFlight sensor = new TimeOfFlight(Constants.Grabber.SENSOR_ID);
     private TalonFX motor = new TalonFX(Constants.Grabber.MOTOR_ID);
 
+    TorqueCurrentFOC req = new TorqueCurrentFOC(0);
+    CoastOut coastReq = new CoastOut();
+
     public Grabber() {
         TalonFXConfiguration conf = new TalonFXConfiguration();
 
@@ -40,9 +43,8 @@ public class Grabber extends SubsystemBase {
 
     public Command spinCommand(Current current) {
         return Commands.run(() -> {
-            ControlRequest req = new TorqueCurrentFOC(current);
-            motor.setControl(req);
-        });
+            motor.setControl(req.withOutput(current));
+        }, this);
     }
 
     public Command intakeCoralCommand() {
@@ -67,8 +69,7 @@ public class Grabber extends SubsystemBase {
 
     public Command coastCommand() {
         return Commands.runOnce(() -> {
-            ControlRequest req = new CoastOut();
-            motor.setControl(req);
-        });
+            motor.setControl(coastReq);
+        }, this);
     }
 }
