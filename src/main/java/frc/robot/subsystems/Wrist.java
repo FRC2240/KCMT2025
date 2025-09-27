@@ -34,10 +34,13 @@ public class Wrist extends SubsystemBase{
     }
 
     public Command setAngleCommand(Angle angle) {
-        return Commands.run(() -> {
-            motor.setControl(req.withPosition(angle));
-        }, this).withName("Set Wrist Angle").until(() -> {
-            return getAngle().isNear(angle, Constants.Wrist.POSITION_THRESHOLD);
+        return Commands.deferredProxy(() -> {
+            return Commands.run(() -> {
+                motor.setControl(req.withPosition(angle));
+            }, this).withName("Set Wrist Angle").until(() -> {
+                return getAngle().isNear(angle, Constants.Wrist.POSITION_THRESHOLD);
+            });
+
         });
     }
 
@@ -56,7 +59,14 @@ public class Wrist extends SubsystemBase{
         return motor.getPosition().getValue();
     }
 
-    public Command offsetCommand(Angle angle) {
-        return setAngleCommand(getAngle().plus(angle));
+    public void setAngle(Angle angle) {
+        motor.setControl(req.withPosition(getAngle().plus(angle)));
     }
+
+    public Command offsetCommand(Angle angle) {
+        return Commands.runOnce(() -> {
+            setAngle(angle);
+        }, this).withName("Set Wrist Offset");
+    }
+    //The set angle may be able to be used for the setangle command as well to simplify, check it later
 }
