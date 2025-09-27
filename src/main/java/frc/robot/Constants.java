@@ -3,9 +3,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -17,6 +20,9 @@ public final class Constants {
     SABERTOOTH,
     FRIDGE
   };
+
+  public static final RobotName ROBOT_NAME = RobotName.SABERTOOTH;
+  public static final double MAX_SPEED = 4;
 
   public final static class ManipulatorStates {
     public static final ManipulatorState L1 = new ManipulatorState(7.83, -24.9);
@@ -35,12 +41,53 @@ public final class Constants {
     public static final Angle POST_SCORE_WRIST_ANGLE = Rotation.of(-16.83);
 
     // States where either the elevator or wrist move before the other
-    public static final ManipulatorState[] ELEVATOR_FIRST_STATES = {IDLE, L4};
-    public static final ManipulatorState[] WRIST_FIRST_STATES = {L2, GROUND_ALGAE};
+    public static final ManipulatorState[] ELEVATOR_FIRST_STATES = { IDLE, L4 };
+    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE };
   }
 
-  public static final RobotName ROBOT_NAME = RobotName.SABERTOOTH;
-  public static final double MAX_SPEED = 4;
+  public final static class Alignment {
+    // X and Y are meters, rot is degrees
+    private static Pose2d createPose(double x, double y, double rot) {
+      return new Pose2d(Meters.of(x), Meters.of(y), Rotation2d.fromDegrees(rot));
+    }
+
+    // REEF SIDES CODES
+    //     3
+    //  2 /-\ 4
+    //  1 \-/ 5
+    //     0
+    // ------- DRIVER LINE
+
+    public static final Pose2d REEF_0_LEFT = createPose(2.9237, 4.2409, -3.86);
+    public static final Pose2d REEF_0_RIGHT = createPose(2.9237, 3.8894, -2.66);
+
+    public static final Pose2d REEF_1_LEFT = createPose(3.8876, 5.4759, -62.2);
+    public static final Pose2d REEF_1_RIGHT = createPose(3.5964, 5.3152, -62.28);
+
+    public static final Pose2d REEF_2_LEFT = createPose(5.4639, 5.2550, -125.15);
+    public static final Pose2d REEF_2_RIGHT = createPose(5.1928, 5.4357, -125.31);
+
+    public static final Pose2d REEF_3_LEFT = createPose(6.0563, 3.8392, 179.56);
+    public static final Pose2d REEF_3_RIGHT = createPose(6.0563, 4.1605, 179.24);
+
+    public static final Pose2d REEF_4_LEFT = createPose(5.0724, 2.5741, 115.46);
+    public static final Pose2d REEF_4_RIGHT = createPose(5.3535, 2.7147, 115.61);
+
+    public static final Pose2d REEF_5_LEFT = createPose(3.5362, 2.7749, 58.19);
+    public static final Pose2d REEF_5_RIGHT = createPose(3.8374, 2.5842, 58.65);
+
+    public static final Pose2d[][] REEF_POSITIONS = {
+      {REEF_0_LEFT, REEF_0_RIGHT},
+      {REEF_1_LEFT, REEF_1_RIGHT},
+      {REEF_2_LEFT, REEF_2_RIGHT},
+      {REEF_3_LEFT, REEF_3_RIGHT},
+      {REEF_4_LEFT, REEF_4_RIGHT},
+      {REEF_5_LEFT, REEF_5_RIGHT}
+    };
+
+    public static final int LEFT = 0;
+    public static final int RIGHT = 1;
+  }
 
   public static class Funnel {
     public static final int MOTOR_ID = 21;
@@ -55,6 +102,9 @@ public final class Constants {
   }
 
   public static class Elevator {
+    public static final int LEFT_MOTOR_ID = 20;
+    public static final int RIGHT_MOTOR_ID = 21;
+
     public static final Angle OFFSET_AMOUNT = Rotations.of(3);
 
   }

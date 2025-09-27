@@ -661,4 +661,11 @@ public class Swerve extends SubsystemBase {
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
     }
+
+    public Command alignCommand() {
+        Pose2d currentPose = getPose();
+        
+
+        return Commands.none();
+    }
 }
