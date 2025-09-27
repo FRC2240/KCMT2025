@@ -1,8 +1,6 @@
 package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
 import static frc.robot.Constants.Vision.ANGULAR_STDEV_COEFF;
@@ -172,17 +170,6 @@ public class Vision extends SubsystemBase {
             all_rejected_poses.addAll(rejected_poses);
 
         }
-
-        // logs data
-
-        Logger.recordOutput("Vision/Summary/Tag_positions",
-                all_tag_poses.toArray(new Pose2d[all_tag_poses.size()]));
-        Logger.recordOutput("Vision/Summary/Robot_positions",
-                all_robot_poses.toArray(new Pose2d[all_tag_poses.size()]));
-        Logger.recordOutput("Vision/Summary/Accepted_positions",
-                all_accepted_poses.toArray(new Pose2d[all_tag_poses.size()]));
-        Logger.recordOutput("Vision/Summary/Rejected_positions",
-                all_rejected_poses.toArray(new Pose2d[all_tag_poses.size()]));
     }
 
     // marks a function interface

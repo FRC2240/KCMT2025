@@ -136,9 +136,8 @@ public final class Constants {
     public static AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     //assuming stores distance of cameras from center of bot
-    //TODO limelight config difference between cams doesn't make sense
-    public static Transform3d camera_0_pos = new Transform3d(-0.272575, 0.2413, 0.520699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(-20))); 
-    public static Transform3d camera_1_pos = new Transform3d(0.272575, 0.2413, 0.510699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(20))); 
+    public static Transform3d CAMERA_0_POS = new Transform3d(-0.272575, 0.2413, 0.520699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(-20))); 
+    public static Transform3d CAMERA_1_POS = new Transform3d(0.272575, 0.2413, 0.510699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(20))); 
 
     public static double MAX_UNCERTAINTY = 0.0; // TBD
     public static double MAX_Z_ERROR = 0.25; //TBD
