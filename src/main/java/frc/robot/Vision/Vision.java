@@ -1,6 +1,7 @@
 package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
@@ -123,7 +124,7 @@ public class Vision extends SubsystemBase {
 
                 //MTag2 configs
                 if (estimation.type() == vision_configuration_type.METATAG_2) {
-                    linear_stdev *= LINEAR_STDEV_MEGATAG_2_COEFF;
+                    linear_stdev *=  LINEAR_STDEV_MEGATAG_2_COEFF;
                     angular_stdev *= ANGULAR_STDEV_MEGATAG_2_COEFF;
                 }
 
