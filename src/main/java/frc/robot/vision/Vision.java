@@ -1,10 +1,10 @@
-package frc.robot.temp;
+package frc.robot.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.temp.BaseVisionIO.vision_configuration_type;
 import frc.robot.vision.BaseVisionIOInputAutoLogged;
+import frc.robot.vision.BaseVisionIO.vision_configuration_type;
 
-import static frc.robot.temp.VisionConstants.*;
+import static frc.robot.vision.VisionConstants.*;
 
 import java.util.LinkedList;
 import java.util.List;

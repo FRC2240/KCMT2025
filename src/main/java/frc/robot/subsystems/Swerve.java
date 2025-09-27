@@ -35,8 +35,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.temp.RealLimelightVisionIO;
-import frc.robot.temp.Vision;
+import frc.robot.vision.RealLimelightVisionIO;
+import frc.robot.vision.Vision;
 
 import java.io.File;
 import java.io.IOException;
