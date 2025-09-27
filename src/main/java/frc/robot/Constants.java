@@ -111,6 +111,7 @@ public final class Constants {
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(3);
 
+    public static final Angle POSITION_THRESHOLD = Degrees.of(4);
   }
 
   public static class Grabber {
