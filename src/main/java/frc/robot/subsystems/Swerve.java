@@ -13,12 +13,16 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,6 +35,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.vision.RealLimelightVisionIO;
+import frc.robot.vision.Vision;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,6 +58,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
+    private final Vision vision;
     private final CommandXboxController driverXbox;
 
     public SwerveInputStream driveAngularVelocity;
@@ -101,6 +109,10 @@ public class Swerve extends SubsystemBase {
         // over the internal encoder and push the offsets onto it. Throws warning if not
         // possible
 
+        // Stop the odometry thread if we are using vision to synchronize updates better.
+        swerveDrive.stopOdometryThread(); 
+        vision = new Vision(this::addVisionMeasurement, new RealLimelightVisionIO("limelight-left", swerveDrive::getPitch), new RealLimelightVisionIO("limelight-right", swerveDrive::getPitch));
+
         setupPathPlanner();
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
 
@@ -115,14 +127,16 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
-        swerveDrive.updateOdometry();
-
+        //swerveDrive.updateOdometry();
     }
 
     @Override
     public void simulationPeriodic() {
     }
 
+    public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
+        swerveDrive.addVisionMeasurement(robot_pose, timestamp);
+    }
     /**
      * Setup AutoBuilder for PathPlanner.
      */
