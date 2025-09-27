@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volt;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -18,6 +17,8 @@ import frc.robot.Constants;
 
 public class Wrist extends SubsystemBase{
     private final TalonFX motor = new TalonFX(Constants.Wrist.MOTOR_ID);
+
+    MotionMagicTorqueCurrentFOC req = new MotionMagicTorqueCurrentFOC(0);
 
     public Wrist() {
         TalonFXConfiguration conf = new TalonFXConfiguration();
@@ -34,9 +35,8 @@ public class Wrist extends SubsystemBase{
 
     public Command setAngleCommand(Angle angle) {
         return Commands.run(() -> {
-            ControlRequest req = new MotionMagicTorqueCurrentFOC(angle);
-            motor.setControl(req);
-        }).withName("Set Wrist Angle").until(() -> {
+            motor.setControl(req.withPosition(angle));
+        }, this).withName("Set Wrist Angle").until(() -> {
             return getAngle().isNear(angle, Constants.Wrist.POSITION_THRESHOLD);
         });
     }
@@ -44,12 +44,12 @@ public class Wrist extends SubsystemBase{
     public Command rezeroCommand() {
         return Commands.run(() -> {
             motor.setControl(new VoltageOut(Volt.of(-3)));
-        }).until(() -> {
+        }, this).until(() -> {
             return motor.getVelocity().getValue().compareTo(RotationsPerSecond.of(1)) <= 0;
         }).andThen(() -> {
             motor.setPosition(0);
             motor.setControl(new VoltageOut(0));
-        }).withName("Rezero Wrist");
+        }, this).withName("Rezero Wrist");
     }
 
     public Angle getAngle() {
