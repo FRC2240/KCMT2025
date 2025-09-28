@@ -145,6 +145,7 @@ public class Vision extends SubsystemBase {
             }
 
             //logs data by camera
+            /*
             Logger.recordOutput(
           "Vision/Camera" + Integer.toString(i) + "/Tag_positions",
           tag_poses.toArray(new Pose3d[tag_poses.size()]));
@@ -157,6 +158,7 @@ public class Vision extends SubsystemBase {
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(i) + "/Rejected_positions",
           rejected_poses.toArray(new Pose3d[rejected_poses.size()]));
+           */
 
             // stores data for each camera
             all_tag_poses.addAll(tag_poses);
