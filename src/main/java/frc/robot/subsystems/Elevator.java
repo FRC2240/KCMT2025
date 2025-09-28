@@ -44,7 +44,7 @@ public class Elevator extends SubsystemBase {
     public Command setPositionCommand(Angle position) {
         return Commands.run(() -> {
             leftMotor.setControl(req.withPosition(position));
-        }, this).withName("Set Elavator Position").until(() -> {
+        }, this).withName("Set Elevator Position").until(() -> {
             return getPosition().isNear(position, Constants.Elevator.POSITION_THRESHOLD);
         });
     }
@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase {
     public Command offsetCommand(Angle offset) {
         return Commands.runOnce(() -> {
             leftMotor.setControl(req.withPosition((getPosition().plus(offset))));
-        }, this).withName("Elavator Offset");
+        }, this).withName("Elevator Offset");
     }
 
     public Angle getPosition() {
