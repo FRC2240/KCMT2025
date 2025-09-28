@@ -145,20 +145,18 @@ public class Vision extends SubsystemBase {
             }
 
             //logs data by camera
-            /*
             Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(i) + "/Tag_positions",
-          tag_poses.toArray(new Pose3d[tag_poses.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(i) + "/Robot_positions",
-          robot_poses.toArray(new Pose3d[robot_poses.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(i) + "/Accepted_position",
-          accepted_poses.toArray(new Pose3d[accepted_poses.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(i) + "/Rejected_positions",
-          rejected_poses.toArray(new Pose3d[rejected_poses.size()]));
-           */
+                "Vision/Camera" + Integer.toString(i) + "/Tag_positions",
+                tag_poses.toArray(new Pose3d[tag_poses.size()]));
+            Logger.recordOutput(
+                "Vision/Camera" + Integer.toString(i) + "/Robot_positions",
+                robot_poses.toArray(new Pose3d[robot_poses.size()]));
+            Logger.recordOutput(
+                "Vision/Camera" + Integer.toString(i) + "/Accepted_position",
+                accepted_poses.toArray(new Pose3d[accepted_poses.size()]));
+            Logger.recordOutput(
+                "Vision/Camera" + Integer.toString(i) + "/Rejected_positions",
+                rejected_poses.toArray(new Pose3d[rejected_poses.size()]));
 
             // stores data for each camera
             all_tag_poses.addAll(tag_poses);
