@@ -101,7 +101,7 @@ public final class Constants {
   }
 
   public static class Funnel {
-    public static final int MOTOR_ID = 21;
+    public static final int MOTOR_ID = 33;
     public static final int DEFAULT_CURRENT = 3;
   }
 
@@ -123,7 +123,7 @@ public final class Constants {
 
   public static class Grabber {
     public static final int SENSOR_ID = 32;
-    public static final int MOTOR_ID = 42;
+    public static final int MOTOR_ID = 48;
 
     // Distance required for a game piece to be "Intaked"
     public static Distance INTAKE_THRESHOLD = Inches.of(2);

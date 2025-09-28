@@ -61,7 +61,7 @@ public class Vision extends SubsystemBase {
     public void periodic() {
         for (int i = 0; i < IO_base.length; i++) {
             IO_base[i].update_inputs(input[i]);
-            Logger.processInputs("Vision/Camera" + Integer.toString(i), input[i]);
+            //Logger.processInputs("Vision/Camera" + i, input[i]);
         }
 
         // stores data for all cameras

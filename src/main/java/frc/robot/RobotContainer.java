@@ -10,10 +10,12 @@ import static frc.robot.Constants.Vision.CAMERA_1_NAME;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.subsystems.*;
@@ -64,6 +66,25 @@ public class RobotContainer {
     }
     configureBindings();
     configureAutos();
+  }
+
+  void addNamedCommands() {
+    NamedCommands.registerCommand("algae intake", Commands.print("start algae intake").andThen(grabber.intakeAlgaeCommand()));
+    NamedCommands.registerCommand("algae extake", Commands.print("start algae extake").andThen(grabber.extakeAlgaeCommand()));
+    NamedCommands.registerCommand("algae ground", Commands.print("start ground algae intake").andThen(setStateCommand(ManipulatorStates.GROUND_ALGAE)));
+    NamedCommands.registerCommand("algae l2", Commands.print("start algae l2").andThen(setStateCommand(ManipulatorStates.ALGAE_L2)));
+    NamedCommands.registerCommand("algae l3", Commands.print("start algae l3").andThen(setStateCommand(ManipulatorStates.ALGAE_L3)));
+    NamedCommands.registerCommand("barge", Commands.print("start barge").andThen(setStateCommand(ManipulatorStates.BARGE)));
+    NamedCommands.registerCommand("processor", Commands.print("start processor").andThen(setStateCommand(ManipulatorStates.PROCESSOR)));
+    NamedCommands.registerCommand("score", Commands.print("start score").andThen(scoreCommand()));
+    NamedCommands.registerCommand("intake", Commands.print("start intake").andThen(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand())));
+    NamedCommands.registerCommand("extake", Commands.print("start extake").andThen(grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT)));
+    NamedCommands.registerCommand("l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)));
+    NamedCommands.registerCommand("l3", Commands.print("start l3").andThen(setStateCommand(ManipulatorStates.L3)));
+    NamedCommands.registerCommand("l2", Commands.print("start l2").andThen(setStateCommand(ManipulatorStates.L2)));
+    NamedCommands.registerCommand("l1", Commands.print("start l1").andThen(setStateCommand(ManipulatorStates.L1)));
+    NamedCommands.registerCommand("idle", Commands.print("start idle").andThen(setStateCommand(ManipulatorStates.IDLE).alongWith(grabber.idleCommand())));
+    //Add auto align here
   }
 
   private void configureBindings() {
