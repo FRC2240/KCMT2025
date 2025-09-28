@@ -9,6 +9,8 @@ import static frc.robot.Constants.Vision.CAMERA_0_POS;
 import static frc.robot.Constants.Vision.CAMERA_1_NAME;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -162,8 +164,12 @@ public class RobotContainer {
   }
 
   private void configureAutos(){
-    autoChooser.setDefaultOption("Do Nothing", null);
-    autoChooser.addOption(null, null); // add autos here
+    //autoChooser.setDefaultOption("Do Nothing", null);
+    // add autos here using format shown bellow
+    autoChooser.addOption("Barge", new PathPlannerAuto("Barge"));
+    autoChooser.addOption("Left 4gp", new PathPlannerAuto("left 4gp"));
+    autoChooser.addOption("Right 4gp", new PathPlannerAuto("right 4gp"));
+    
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
