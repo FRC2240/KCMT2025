@@ -4,11 +4,22 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Vision.CAMERA_0_NAME;
+import static frc.robot.Constants.Vision.CAMERA_0_POS;
+import static frc.robot.Constants.Vision.CAMERA_1_NAME;
+import static frc.robot.Constants.Vision.CAMERA_1_POS;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
+import frc.robot.vision.RealLimelightVisionIO;
+import frc.robot.vision.SimPhotonVisionIO;
+import frc.robot.vision.BaseVisionIO;
+import frc.robot.vision.Vision;
 import frc.robot.Constants.Alignment;
 import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "constants." on every state
 
@@ -16,16 +27,41 @@ public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
   final CommandXboxController stick1 = new CommandXboxController(1);
 
+  private final Vision vision;
+
   private final Swerve drivebase = new Swerve(stick0);
   private final Funnel funnel = new Funnel();
   private final Grabber grabber = new Grabber();
   private final Wrist wrist = new Wrist();
   private final Elevator elevator = new Elevator();
 
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
 
   public RobotContainer() {
+    
+    switch (Constants.CURRENT_MODE) {
+        case REAL:
+            vision =
+                new Vision(
+                    drivebase::addVisionMeasurement,
+                    new RealLimelightVisionIO(CAMERA_0_NAME, drivebase::getPitch),
+                    new RealLimelightVisionIO(CAMERA_1_NAME, drivebase::getPitch));
+            break;
+        case SIM :
+            vision =
+                new Vision(
+                    drivebase::addVisionMeasurement,
+                    new SimPhotonVisionIO(CAMERA_0_NAME, drivebase::getPose, CAMERA_0_POS),
+                    new SimPhotonVisionIO(CAMERA_1_NAME, drivebase::getPose, CAMERA_1_POS));
+            break;
+        default:
+            vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});
+            break;
+    }
     configureBindings();
+    configureAutos();
   }
 
   private void configureBindings() {
@@ -125,6 +161,13 @@ public class RobotContainer {
         .toggleOnTrue(funnel.stopCommand());
   }
 
+  private void configureAutos(){
+    autoChooser.setDefaultOption("Do Nothing", null);
+    autoChooser.addOption(null, null); // add autos here
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+  }
+  
   private Command setStateCommand(ManipulatorState target) {
     ManipulatorState lastState = currentState;
     currentState = target;
@@ -159,6 +202,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autoChooser.getSelected();
   }
 }

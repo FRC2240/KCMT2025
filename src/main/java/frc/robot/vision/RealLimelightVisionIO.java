@@ -72,7 +72,6 @@ public class RealLimelightVisionIO implements BaseVisionIO {
 
         // for each bit of raw data that has changed since the last call
         for (var raw_data : metatag1Subscriber.readQueue()) {
-            System.out.println(raw_data);
             // Java short-hand
             if (raw_data.value.length == 0) continue;
             // 11 is that tags start with
