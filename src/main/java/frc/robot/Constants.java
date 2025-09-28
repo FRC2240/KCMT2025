@@ -16,7 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.utils.ManipulatorState;
 
 public final class Constants {
@@ -25,7 +25,14 @@ public final class Constants {
     FRIDGE
   };
 
-  public static final RobotName ROBOT_NAME = RobotName.SABERTOOTH;
+  public static enum mode{
+    REAL,
+    SIM,
+    REPLAY
+  }
+
+  public static final RobotName ROBOT_NAME = RobotName.FRIDGE;
+  public static final mode CURRENT_MODE = (RobotBase.isReal() ? mode.REAL : mode.SIM);
   public static final double MAX_SPEED = 4;
 
   public final static class ManipulatorStates {
@@ -110,8 +117,8 @@ public final class Constants {
     public static final int RIGHT_MOTOR_ID = 21;
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(3);
-
     public static final Angle POSITION_THRESHOLD = Degrees.of(4);
+    public static final Angle DEFAULT = Rotations.of(0);
   }
 
   public static class Grabber {
@@ -139,6 +146,9 @@ public final class Constants {
     //assuming stores distance of cameras from center of bot
     public static Transform3d CAMERA_0_POS = new Transform3d(-0.272575, 0.2413, 0.520699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(-20))); 
     public static Transform3d CAMERA_1_POS = new Transform3d(0.272575, 0.2413, 0.510699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(20))); 
+
+    public static String CAMERA_0_NAME = "camera_0"; //probably don't change bc network tables
+    public static String CAMERA_1_NAME = "camera_1"; //probably don't change bc network tables
 
     public static double MAX_UNCERTAINTY = 0.0; // TBD
     public static double MAX_Z_ERROR = 0.25; //TBD
