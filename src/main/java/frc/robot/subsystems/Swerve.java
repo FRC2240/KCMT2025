@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -11,9 +11,9 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
@@ -30,6 +30,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -65,7 +66,6 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
-    private final PIDController driveToPointPIDController = new PIDController(5, 0, 2);
     private final Timer joystickCooldownTimer = new Timer();
 
     public SwerveInputStream driveAngularVelocity;
@@ -228,19 +228,6 @@ public class Swerve extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-
-    private AngularVelocity calculateOmega(Rotation2d desiredHeading) {
-        double kP = 4.0; // tune
-        double error = desiredHeading.minus(this.getHeading()).getRadians();
-        double omega = kP * error;
-
-        double maximumAngularVelocityForDriveToPoint = swerveDrive.getMaximumChassisAngularVelocity();
-        // clamp to ±maximumAngularVelocityForDriveToPoint
-        return RadiansPerSecond.of(MathUtil.clamp(omega,
-                -maximumAngularVelocityForDriveToPoint,
-                maximumAngularVelocityForDriveToPoint));
-    }
-
     public Command driveToPose(Pose2d targetPose) {
         return Commands.runOnce(() -> {
             joystickCooldownTimer.restart();
@@ -254,32 +241,33 @@ public class Swerve extends SubsystemBase {
                 frictionConstant = STATIC_FRICTION_CONSTANT * swerveDrive.getMaximumChassisVelocity();
             }
 
-            double maxVelocityOutputForDriveToPoint = Units.feetToMeters(10.0);
 
             var directionOfTravel = translationToPoint.getAngle();
-            var velocityOutput = Math.min(driveToPointPIDController.calculate(linearDistance, 0) + frictionConstant,
-                    maxVelocityOutputForDriveToPoint);
+            var velocityOutput = Math.min(
+                    Alignment.DRIVE_PID_CONTROLLER.calculate(linearDistance, 0) + frictionConstant,
+                    swerveDrive.getMaximumChassisVelocity());
 
             LinearVelocity xComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getCos());
             LinearVelocity yComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getSin());
 
-            Rotation2d desiredHeading = targetPose.getRotation();
+            // Calculate angle omega
+            double angleDistance = this.getHeading().minus(targetPose.getRotation()).getRadians();
+            double omegaCalc = Alignment.ANGLE_PID_CONTROLLER.calculate(angleDistance, 0);
+
+            AngularVelocity omega = RadiansPerSecond.of(MathUtil.clamp(omegaCalc,
+                    -swerveDrive.getMaximumChassisAngularVelocity(),
+                    swerveDrive.getMaximumChassisAngularVelocity()));
+
             ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xComponent, yComponent, calculateOmega(desiredHeading), getHeading());
+                    xComponent, yComponent, omega, getHeading());
 
             swerveDrive.drive(speeds);
         }, this).until(() -> {
-            Translation2d translationToPoint = targetPose.getTranslation().minus(getPose().getTranslation());
-            double linearDistance = translationToPoint.getNorm();
-
-            return linearDistance < 0.03;
-        }).until(() -> {
-            final double threshold = 0.5;
-            return joystickCooldownTimer.hasElapsed(0.5) &&
-                    (Math.abs(driverXbox.getRightX()) > threshold ||
-                            Math.abs(driverXbox.getRightY()) > threshold ||
-                            Math.abs(driverXbox.getLeftX()) > threshold ||
-                            Math.abs(driverXbox.getLeftY()) > threshold);
+            return joystickCooldownTimer.hasElapsed(Alignment.CONTROLLER_COOLDOWN) &&
+                    (Math.abs(driverXbox.getRightX()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getRightY()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getLeftX()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getLeftY()) > Alignment.CONTROLLER_THESHOLD);
         })).andThen(() -> {
             joystickCooldownTimer.stop();
         });
@@ -736,8 +724,13 @@ public class Swerve extends SubsystemBase {
                 Pose2d[] positions = Constants.Alignment.REEF_POSITIONS[i];
                 Pose2d middlePose = positions[0].interpolate(positions[1], 0.5);
 
+                if (isRedAlliance()) {
+                    middlePose = FlippingUtil.flipFieldPose(middlePose);
+                }
+
                 double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
-                if (distance < bestDist) {
+
+                if (distance < bestDist && distance < Constants.Alignment.MAX_EFFECTIVE_DIST.in(Meters)) {
                     bestDist = distance;
                     bestSide = i;
                 }
@@ -749,7 +742,11 @@ public class Swerve extends SubsystemBase {
             }
 
             System.out.println("side: " + bestSide + "  right: " + leftright);
-            return this.driveToPose(Constants.Alignment.REEF_POSITIONS[bestSide][leftright]);
+            Pose2d goalPose = Constants.Alignment.REEF_POSITIONS[bestSide][leftright];
+            if (isRedAlliance())
+                goalPose = FlippingUtil.flipFieldPose(goalPose);
+
+            return this.driveToPose(goalPose);
         });
     }
 }

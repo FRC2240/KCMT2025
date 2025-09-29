@@ -11,6 +11,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -61,6 +62,14 @@ public final class Constants {
     private static Pose2d createPose(double x, double y, double rot) {
       return new Pose2d(Meters.of(x), Meters.of(y), Rotation2d.fromDegrees(rot));
     }
+    
+    public static final double CONTROLLER_COOLDOWN = 0.3;
+    public static final double CONTROLLER_THESHOLD = 0.2;
+
+    public static final PIDController DRIVE_PID_CONTROLLER = new PIDController(5, 0, 1);
+    public static final PIDController ANGLE_PID_CONTROLLER = new PIDController(5, 0, 0);
+    
+    public static final Distance MAX_EFFECTIVE_DIST = Meters.of(2.5);
 
     // REEF SIDES CODES
     //     3
