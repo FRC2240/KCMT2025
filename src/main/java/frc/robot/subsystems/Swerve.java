@@ -66,10 +66,6 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
-
-    private final PIDController driveToPointDrivePIDController = new PIDController(5, 0, 1);
-    private final PIDController driveToPointAnglePIDController = new PIDController(5, 0, 0);
-
     private final Timer joystickCooldownTimer = new Timer();
 
     public SwerveInputStream driveAngularVelocity;
@@ -245,19 +241,18 @@ public class Swerve extends SubsystemBase {
                 frictionConstant = STATIC_FRICTION_CONSTANT * swerveDrive.getMaximumChassisVelocity();
             }
 
-            double maxVelocityOutputForDriveToPoint = Units.feetToMeters(10.0);
 
             var directionOfTravel = translationToPoint.getAngle();
             var velocityOutput = Math.min(
-                    driveToPointDrivePIDController.calculate(linearDistance, 0) + frictionConstant,
-                    maxVelocityOutputForDriveToPoint);
+                    Alignment.DRIVE_PID_CONTROLLER.calculate(linearDistance, 0) + frictionConstant,
+                    swerveDrive.getMaximumChassisVelocity());
 
             LinearVelocity xComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getCos());
             LinearVelocity yComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getSin());
 
             // Calculate angle omega
             double angleDistance = this.getHeading().minus(targetPose.getRotation()).getRadians();
-            double omegaCalc = driveToPointAnglePIDController.calculate(angleDistance, 0);
+            double omegaCalc = Alignment.ANGLE_PID_CONTROLLER.calculate(angleDistance, 0);
 
             AngularVelocity omega = RadiansPerSecond.of(MathUtil.clamp(omegaCalc,
                     -swerveDrive.getMaximumChassisAngularVelocity(),
@@ -268,12 +263,11 @@ public class Swerve extends SubsystemBase {
 
             swerveDrive.drive(speeds);
         }, this).until(() -> {
-            final double threshold = 0.5;
-            return joystickCooldownTimer.hasElapsed(0.5) &&
-                    (Math.abs(driverXbox.getRightX()) > threshold ||
-                            Math.abs(driverXbox.getRightY()) > threshold ||
-                            Math.abs(driverXbox.getLeftX()) > threshold ||
-                            Math.abs(driverXbox.getLeftY()) > threshold);
+            return joystickCooldownTimer.hasElapsed(Alignment.CONTROLLER_COOLDOWN) &&
+                    (Math.abs(driverXbox.getRightX()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getRightY()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getLeftX()) > Alignment.CONTROLLER_THESHOLD ||
+                            Math.abs(driverXbox.getLeftY()) > Alignment.CONTROLLER_THESHOLD);
         })).andThen(() -> {
             joystickCooldownTimer.stop();
         });
@@ -735,7 +729,7 @@ public class Swerve extends SubsystemBase {
                 }
 
                 double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
-                
+
                 if (distance < bestDist && distance < Constants.Alignment.MAX_EFFECTIVE_DIST.in(Meters)) {
                     bestDist = distance;
                     bestSide = i;
@@ -749,7 +743,8 @@ public class Swerve extends SubsystemBase {
 
             System.out.println("side: " + bestSide + "  right: " + leftright);
             Pose2d goalPose = Constants.Alignment.REEF_POSITIONS[bestSide][leftright];
-            if (isRedAlliance()) goalPose = FlippingUtil.flipFieldPose(goalPose);
+            if (isRedAlliance())
+                goalPose = FlippingUtil.flipFieldPose(goalPose);
 
             return this.driveToPose(goalPose);
         });
