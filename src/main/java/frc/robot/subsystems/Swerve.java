@@ -66,6 +66,7 @@ public class Swerve extends SubsystemBase {
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
     private final PIDController driveToPointPIDController = new PIDController(5, 0, 2);
+    private final Timer joystickCooldownTimer = new Timer();
 
     public SwerveInputStream driveAngularVelocity;
 
@@ -241,7 +242,9 @@ public class Swerve extends SubsystemBase {
     }
 
     public Command driveToPose(Pose2d targetPose) {
-        return Commands.run(() -> {
+        return Commands.runOnce(() -> {
+            joystickCooldownTimer.restart();
+        }, this).andThen(Commands.run(() -> {
             Translation2d translationToPoint = targetPose.getTranslation().minus(getPose().getTranslation());
             double linearDistance = translationToPoint.getNorm();
             double frictionConstant = 0;
@@ -270,6 +273,15 @@ public class Swerve extends SubsystemBase {
             double linearDistance = translationToPoint.getNorm();
 
             return linearDistance < 0.03;
+        }).until(() -> {
+            final double threshold = 0.5;
+            return joystickCooldownTimer.hasElapsed(0.5) &&
+                    (Math.abs(driverXbox.getRightX()) > threshold ||
+                            Math.abs(driverXbox.getRightY()) > threshold ||
+                            Math.abs(driverXbox.getLeftX()) > threshold ||
+                            Math.abs(driverXbox.getLeftY()) > threshold);
+        })).andThen(() -> {
+            joystickCooldownTimer.stop();
         });
     }
 
