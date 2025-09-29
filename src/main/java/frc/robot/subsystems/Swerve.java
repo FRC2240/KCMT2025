@@ -12,6 +12,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
@@ -727,6 +728,10 @@ public class Swerve extends SubsystemBase {
                 Pose2d[] positions = Constants.Alignment.REEF_POSITIONS[i];
                 Pose2d middlePose = positions[0].interpolate(positions[1], 0.5);
 
+                if (isRedAlliance()) {
+                    middlePose = FlippingUtil.flipFieldPose(middlePose);
+                }
+
                 double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
                 if (distance < bestDist) {
                     bestDist = distance;
@@ -740,7 +745,10 @@ public class Swerve extends SubsystemBase {
             }
 
             System.out.println("side: " + bestSide + "  right: " + leftright);
-            return this.driveToPose(Constants.Alignment.REEF_POSITIONS[bestSide][leftright]);
+            Pose2d goalPose = Constants.Alignment.REEF_POSITIONS[bestSide][leftright];
+            if (isRedAlliance()) goalPose = FlippingUtil.flipFieldPose(goalPose);
+
+            return this.driveToPose(goalPose);
         });
     }
 }
