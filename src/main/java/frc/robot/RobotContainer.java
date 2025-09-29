@@ -10,6 +10,7 @@ import static frc.robot.Constants.Vision.CAMERA_1_NAME;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -167,7 +168,7 @@ public class RobotContainer {
         .onTrue(elevator.offsetCommand(Constants.Elevator.OFFSET_AMOUNT.times(-1)));
 
     // Align to left side
-    stick1.povLeft()
+    stick0.povLeft()
         .onTrue(drivebase.alignCommand(Alignment.LEFT));
 
     // Align to right side

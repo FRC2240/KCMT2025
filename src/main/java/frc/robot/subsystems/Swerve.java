@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -14,7 +17,9 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +30,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -36,9 +43,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.Alignment;
-//import frc.robot.vision.RealLimelightVisionIO;
-//import frc.robot.vision.SimPhotonVisionIO;
-//import frc.robot.vision.Vision;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +64,8 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
-    //private final Vision vision;
     private final CommandXboxController driverXbox;
+    private final PIDController driveToPointPIDController = new PIDController(5, 0, 2);
 
     public SwerveInputStream driveAngularVelocity;
 
@@ -111,21 +115,7 @@ public class Swerve extends SubsystemBase {
         // over the internal encoder and push the offsets onto it. Throws warning if not
         // possible
 
-        // Stop the odometry thread if we are using vision to synchronize updates
-        // better.
-
-        /*
         swerveDrive.stopOdometryThread();
-        if (!SwerveDriveTelemetry.isSimulation) {
-            vision = new Vision(this::addVisionMeasurement,
-                    new RealLimelightVisionIO("limelight-left", swerveDrive::getPitch),
-                    new RealLimelightVisionIO("limelight-right", swerveDrive::getPitch));
-        } else {
-            vision = new Vision(this::addVisionMeasurement,
-                    new SimPhotonVisionIO("camera0", swerveDrive::getPose, Constants.Vision.CAMERA_0_POS),
-                    new SimPhotonVisionIO("camera1", swerveDrive::getPose, Constants.Vision.CAMERA_1_POS));
-        }
-        */
 
         setupPathPlanner();
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
@@ -237,18 +227,50 @@ public class Swerve extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-    public Command driveToPose(Pose2d pose) {
-        // Create the constraints to use while pathfinding
-        PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity(), 4.0,
-                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        return AutoBuilder.pathfindToPose(
-                pose,
-                constraints,
-                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-        );
+    private AngularVelocity calculateOmega(Rotation2d desiredHeading) {
+        double kP = 4.0; // tune
+        double error = desiredHeading.minus(this.getHeading()).getRadians();
+        double omega = kP * error;
+
+        double maximumAngularVelocityForDriveToPoint = swerveDrive.getMaximumChassisAngularVelocity();
+        // clamp to ±maximumAngularVelocityForDriveToPoint
+        return RadiansPerSecond.of(MathUtil.clamp(omega,
+                -maximumAngularVelocityForDriveToPoint,
+                maximumAngularVelocityForDriveToPoint));
+    }
+
+    public Command driveToPose(Pose2d targetPose) {
+        return Commands.run(() -> {
+            Translation2d translationToPoint = targetPose.getTranslation().minus(getPose().getTranslation());
+            double linearDistance = translationToPoint.getNorm();
+            double frictionConstant = 0;
+
+            if (linearDistance >= Units.inchesToMeters(0.5)) {
+                final double STATIC_FRICTION_CONSTANT = 0.02;
+                frictionConstant = STATIC_FRICTION_CONSTANT * swerveDrive.getMaximumChassisVelocity();
+            }
+
+            double maxVelocityOutputForDriveToPoint = Units.feetToMeters(10.0);
+
+            var directionOfTravel = translationToPoint.getAngle();
+            var velocityOutput = Math.min(driveToPointPIDController.calculate(linearDistance, 0) + frictionConstant,
+                    maxVelocityOutputForDriveToPoint);
+
+            LinearVelocity xComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getCos());
+            LinearVelocity yComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getSin());
+
+            Rotation2d desiredHeading = targetPose.getRotation();
+            ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                    xComponent, yComponent, calculateOmega(desiredHeading), getHeading());
+
+            swerveDrive.drive(speeds);
+        }, this).until(() -> {
+            Translation2d translationToPoint = targetPose.getTranslation().minus(getPose().getTranslation());
+            double linearDistance = translationToPoint.getNorm();
+
+            return linearDistance < 0.03;
+        });
     }
 
     /**
@@ -701,7 +723,7 @@ public class Swerve extends SubsystemBase {
             for (int i = 0; i < Alignment.REEF_POSITIONS.length; i++) {
                 Pose2d[] positions = Constants.Alignment.REEF_POSITIONS[i];
                 Pose2d middlePose = positions[0].interpolate(positions[1], 0.5);
-    
+
                 double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
                 if (distance < bestDist) {
                     bestDist = distance;
@@ -714,6 +736,7 @@ public class Swerve extends SubsystemBase {
                 return Commands.none();
             }
 
+            System.out.println("side: " + bestSide + "  right: " + leftright);
             return this.driveToPose(Constants.Alignment.REEF_POSITIONS[bestSide][leftright]);
         });
     }
