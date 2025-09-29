@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -11,7 +10,6 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -65,7 +63,10 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
-    private final PIDController driveToPointPIDController = new PIDController(5, 0, 2);
+
+    private final PIDController driveToPointDrivePIDController = new PIDController(5, 0, 1);
+    private final PIDController driveToPointAnglePIDController = new PIDController(5, 0, 0);
+
     private final Timer joystickCooldownTimer = new Timer();
 
     public SwerveInputStream driveAngularVelocity;
@@ -228,19 +229,6 @@ public class Swerve extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-
-    private AngularVelocity calculateOmega(Rotation2d desiredHeading) {
-        double kP = 4.0; // tune
-        double error = desiredHeading.minus(this.getHeading()).getRadians();
-        double omega = kP * error;
-
-        double maximumAngularVelocityForDriveToPoint = swerveDrive.getMaximumChassisAngularVelocity();
-        // clamp to ±maximumAngularVelocityForDriveToPoint
-        return RadiansPerSecond.of(MathUtil.clamp(omega,
-                -maximumAngularVelocityForDriveToPoint,
-                maximumAngularVelocityForDriveToPoint));
-    }
-
     public Command driveToPose(Pose2d targetPose) {
         return Commands.runOnce(() -> {
             joystickCooldownTimer.restart();
@@ -257,23 +245,26 @@ public class Swerve extends SubsystemBase {
             double maxVelocityOutputForDriveToPoint = Units.feetToMeters(10.0);
 
             var directionOfTravel = translationToPoint.getAngle();
-            var velocityOutput = Math.min(driveToPointPIDController.calculate(linearDistance, 0) + frictionConstant,
+            var velocityOutput = Math.min(
+                    driveToPointDrivePIDController.calculate(linearDistance, 0) + frictionConstant,
                     maxVelocityOutputForDriveToPoint);
 
             LinearVelocity xComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getCos());
             LinearVelocity yComponent = MetersPerSecond.of(-velocityOutput * directionOfTravel.getSin());
 
-            Rotation2d desiredHeading = targetPose.getRotation();
+            // Calculate angle omega
+            double angleDistance = this.getHeading().minus(targetPose.getRotation()).getRadians();
+            double omegaCalc = driveToPointAnglePIDController.calculate(angleDistance, 0);
+
+            AngularVelocity omega = RadiansPerSecond.of(MathUtil.clamp(omegaCalc,
+                    -swerveDrive.getMaximumChassisAngularVelocity(),
+                    swerveDrive.getMaximumChassisAngularVelocity()));
+
             ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xComponent, yComponent, calculateOmega(desiredHeading), getHeading());
+                    xComponent, yComponent, omega, getHeading());
 
             swerveDrive.drive(speeds);
         }, this).until(() -> {
-            Translation2d translationToPoint = targetPose.getTranslation().minus(getPose().getTranslation());
-            double linearDistance = translationToPoint.getNorm();
-
-            return linearDistance < 0.03;
-        }).until(() -> {
             final double threshold = 0.5;
             return joystickCooldownTimer.hasElapsed(0.5) &&
                     (Math.abs(driverXbox.getRightX()) > threshold ||
