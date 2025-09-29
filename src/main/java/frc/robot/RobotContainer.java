@@ -32,19 +32,18 @@ public class RobotContainer {
   final CommandXboxController stick1 = new CommandXboxController(1);
 
   private final Vision vision;
-
   private final Swerve drivebase = new Swerve(stick0);
   private final Funnel funnel = new Funnel();
   private final Grabber grabber = new Grabber();
   private final Wrist wrist = new Wrist();
   private final Elevator elevator = new Elevator();
+  private final Candle candle = new Candle(grabber::has_gp);
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
 
   public RobotContainer() {
-    
     switch (Constants.CURRENT_MODE) {
         case REAL:
             vision =

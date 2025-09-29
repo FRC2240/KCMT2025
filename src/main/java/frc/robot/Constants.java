@@ -139,6 +139,11 @@ public final class Constants {
     public static final double DEADBAND = 0.5;
   }
 
+  public static class Candle {
+    public static final int CANDLE_ID = 10;
+    public static final int LED_COUNT = 39;
+  }
+
   public static class Vision {
     //stores tag layout for the current year's feild
     public static AprilTagFieldLayout APRIL_TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
