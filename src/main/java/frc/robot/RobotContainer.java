@@ -168,12 +168,12 @@ public class RobotContainer {
         .onTrue(elevator.offsetCommand(Constants.Elevator.OFFSET_AMOUNT.times(-1)));
 
     // Align to left side
-    stick0.button(1)
+    stick0.povLeft()
         .onTrue(drivebase.alignCommand(Alignment.LEFT));
 
 
     // Align to right side
-    stick0.button(2) // TODO CHANGEBACK TO POV
+    stick0.povRight()
         .onTrue(drivebase.alignCommand(Alignment.RIGHT));
 
     // Ground algae intake
