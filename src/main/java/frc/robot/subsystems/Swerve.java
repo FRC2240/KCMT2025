@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
@@ -29,6 +30,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -733,7 +735,8 @@ public class Swerve extends SubsystemBase {
                 }
 
                 double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
-                if (distance < bestDist) {
+                
+                if (distance < bestDist && distance < Constants.Alignment.MAX_EFFECTIVE_DIST.in(Meters)) {
                     bestDist = distance;
                     bestSide = i;
                 }

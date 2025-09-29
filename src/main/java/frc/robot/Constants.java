@@ -62,6 +62,8 @@ public final class Constants {
       return new Pose2d(Meters.of(x), Meters.of(y), Rotation2d.fromDegrees(rot));
     }
 
+    public static final Distance MAX_EFFECTIVE_DIST = Meters.of(2.5);
+
     // REEF SIDES CODES
     //     3
     //  2 /-\ 4
