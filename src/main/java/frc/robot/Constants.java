@@ -40,7 +40,7 @@ public final class Constants {
     public static final ManipulatorState L1 = new ManipulatorState(7.83, -24.9);
     public static final ManipulatorState L2 = new ManipulatorState(0, -10.25);
     public static final ManipulatorState L3 = new ManipulatorState(11.58, -9.9);
-    public static final ManipulatorState L4 = new ManipulatorState(28.55, -10.43);
+    public static final ManipulatorState L4 = new ManipulatorState(28.55, -10.43); 
     public static final ManipulatorState IDLE = new ManipulatorState(6.82, -33.47);
     public static final ManipulatorState IDLE_WITH_GP = new ManipulatorState(12.329, 19.7);
     public static final ManipulatorState INTAKE = new ManipulatorState(0.41, -33.6);
@@ -54,7 +54,7 @@ public final class Constants {
 
     // States where either the elevator or wrist move before the other
     public static final ManipulatorState[] ELEVATOR_FIRST_STATES = { IDLE, L4 };
-    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE };
+    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE, INTAKE };
   }
 
   public final static class Alignment {
@@ -126,7 +126,7 @@ public final class Constants {
     public static final int RIGHT_MOTOR_ID = 21;
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(3);
-    public static final Angle POSITION_THRESHOLD = Degrees.of(4);
+    public static final Angle POSITION_THRESHOLD = Rotations.of(2);
     public static final Angle DEFAULT = Rotations.of(0);
   }
 
