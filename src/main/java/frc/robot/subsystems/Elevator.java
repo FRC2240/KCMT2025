@@ -7,7 +7,6 @@ import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,7 +16,7 @@ import frc.robot.Constants;
 public class Elevator extends SubsystemBase {
     private final TalonFX leftMotor = new TalonFX(Constants.Elevator.LEFT_MOTOR_ID);
     private final TalonFX rightMotor = new TalonFX(Constants.Elevator.RIGHT_MOTOR_ID);
-    
+
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
     MotionMagicTorqueCurrentFOC req = new MotionMagicTorqueCurrentFOC(0);
 
@@ -36,9 +35,8 @@ public class Elevator extends SubsystemBase {
         leftMotor.getConfigurator().apply(talonFXConfigs);
         rightMotor.getConfigurator().apply(talonFXConfigs);
 
-        rightMotor.setControl(new Follower(Constants.Elevator.LEFT_MOTOR_ID, false));
+        rightMotor.setControl(new Follower(Constants.Elevator.LEFT_MOTOR_ID, true));
 
-    
     }
 
     public Command setPositionCommand(Angle position) {

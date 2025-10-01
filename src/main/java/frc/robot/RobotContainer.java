@@ -45,6 +45,8 @@ public class RobotContainer {
   private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
 
   public RobotContainer() {
+    addNamedCommands();
+
     switch (Constants.CURRENT_MODE) {
         case REAL:
             vision =
@@ -68,7 +70,7 @@ public class RobotContainer {
     configureAutos();
   }
 
-  void addNamedCommands() {
+  private void addNamedCommands() {
     NamedCommands.registerCommand("algae intake", Commands.print("start algae intake").andThen(grabber.intakeAlgaeCommand()));
     NamedCommands.registerCommand("algae extake", Commands.print("start algae extake").andThen(grabber.extakeAlgaeCommand()));
     NamedCommands.registerCommand("algae ground", Commands.print("start ground algae intake").andThen(setStateCommand(ManipulatorStates.GROUND_ALGAE)));
@@ -177,7 +179,7 @@ public class RobotContainer {
         .onTrue(drivebase.alignCommand(Alignment.RIGHT));
 
     // Ground algae intake
-    stick0.rightTrigger()
+    stick1.rightTrigger()
         .onTrue(setStateCommand(ManipulatorStates.GROUND_ALGAE));
 
     // Funnel toggle
@@ -205,14 +207,18 @@ public class RobotContainer {
 
     // Special cases where elevator moves first
     for (ManipulatorState state : ManipulatorStates.ELEVATOR_FIRST_STATES) {
-      if (target.equals(state))
+      if (target.equals(state)) {
+        System.out.println("Elevator First Command");
         return elevatorCommand.andThen(wristCommand);
+      }
     }
 
     // Special cases where wrist moves first
     for (ManipulatorState state : ManipulatorStates.WRIST_FIRST_STATES) {
-      if (target.equals(state))
+      if (target.equals(state)) {
+        System.out.println("Wrist First Command");
         return wristCommand.andThen(elevatorCommand);
+      } 
     }
     if (lastState.equals(ManipulatorStates.BARGE))
       return wristCommand.andThen(elevatorCommand);
