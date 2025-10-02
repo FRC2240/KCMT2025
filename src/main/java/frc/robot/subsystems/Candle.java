@@ -118,10 +118,6 @@ public class Candle extends SubsystemBase {
                 } else {
                     candle.setLEDs(0, 0, 0);
                 }
-
-                if (cyclesInState / 50.0 >= 3) {
-
-                }
                 break;
             case ENABLED:
                 candle.animate(rainbowAnim);
