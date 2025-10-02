@@ -46,6 +46,7 @@ public class Candle extends SubsystemBase {
         candle.configLOSBehavior(true, 1000);
     }
 
+
     @Override
     public void periodic() {
 
@@ -70,7 +71,7 @@ public class Candle extends SubsystemBase {
         } else if (DriverStation.isDisabled()) {
             double secondsInState = cyclesInState / 50.0;
 
-            if (secondsInState < 3) {
+            if (secondsInState < 3 && state != State.DISABLED) {
                 state = State.DISABLED_BLINK;
             } else if (DriverStation.isEStopped()) {
                 state = State.ERROR;
@@ -116,6 +117,10 @@ public class Candle extends SubsystemBase {
                     candle.setLEDs(255, 255, 0);
                 } else {
                     candle.setLEDs(0, 0, 0);
+                }
+
+                if (cyclesInState / 50.0 >= 3) {
+
                 }
                 break;
             case ENABLED:
