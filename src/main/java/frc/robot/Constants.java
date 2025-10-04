@@ -111,14 +111,14 @@ public final class Constants {
 
   public static class Funnel {
     public static final int MOTOR_ID = 33;
-    public static final int DEFAULT_CURRENT = 3;
+    public static final int DEFAULT_CURRENT = -30;
   }
 
   public static class Wrist {
     public static final int MOTOR_ID = 5;
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(2);
-    public static final Angle POSITION_THRESHOLD = Degrees.of(8);
+    public static final Angle POSITION_THRESHOLD = Degrees.of(8); 
   }
 
   public static class Elevator {
