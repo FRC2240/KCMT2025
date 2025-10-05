@@ -35,6 +35,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -125,7 +126,9 @@ public class Swerve extends SubsystemBase {
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,
                 () -> driverXbox.getLeftX() * -1)
-                .withControllerRotationAxis(() -> {return driverXbox.getRightX() * -2;})
+                .withControllerRotationAxis(() -> {
+                    return driverXbox.getRightX() * -2;
+                })
                 .deadband(Constants.OperatorConstants.DEADBAND)
                 .scaleTranslation(1.5)
                 .scaleRotation(1)
@@ -142,7 +145,6 @@ public class Swerve extends SubsystemBase {
     }
 
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
-        System.out.println("Called");
         swerveDrive.addVisionMeasurement(robot_pose, timestamp);
     }
 
@@ -243,7 +245,6 @@ public class Swerve extends SubsystemBase {
                 final double STATIC_FRICTION_CONSTANT = 0.02;
                 frictionConstant = STATIC_FRICTION_CONSTANT * swerveDrive.getMaximumChassisVelocity();
             }
-
 
             var directionOfTravel = translationToPoint.getAngle();
             var velocityOutput = Math.min(

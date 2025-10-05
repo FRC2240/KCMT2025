@@ -106,7 +106,9 @@ public class Candle extends SubsystemBase {
                 candle.setLEDs(0, 255, 0);
                 break;
             case DISABLED:
-                if (alliance.get().equals(Alliance.Red)) {
+                if (alliance.isEmpty()) {
+                    candle.setLEDs(255, 255, 255);
+                } else if (alliance.get().equals(Alliance.Red)) {
                     candle.setLEDs(255, 0, 0);
                 } else {
                     candle.setLEDs(0, 0, 255);

@@ -25,7 +25,6 @@ import edu.wpi.first.math.numbers.N3;
 
 import org.littletonrobotics.junction.Logger;
 
-
 public class Vision extends SubsystemBase {
 
     // empty but can hold an object that implements vision consumer
@@ -51,7 +50,8 @@ public class Vision extends SubsystemBase {
         }
 
     }
-    // returns X angle to  nearest tag, method
+
+    // returns X angle to nearest tag, method
     public Rotation2d getAngleX(int cameraIndex) {
         return input[cameraIndex].angle_to_tag.rot_x();
     }
@@ -72,7 +72,6 @@ public class Vision extends SubsystemBase {
 
         // does a bunch of suff for each camera
         for (int i = 0; i < IO_base.length; i++) {
-
             List<Pose3d> tag_poses = new LinkedList<>();
             List<Pose3d> robot_poses = new LinkedList<>();
             List<Pose3d> accepted_poses = new LinkedList<>();
@@ -92,15 +91,15 @@ public class Vision extends SubsystemBase {
                 // example has many unecissary seeming conditions
                 // come back to
                 // potential point of failure
+
                 boolean reject_pose = estimation.april_tag_count() == 0 // rejects estimates made without tags
                         || (estimation.april_tag_count() == 1
                                 && estimation.uncertainty() > MAX_UNCERTAINTY)
-                        || (Math.abs(estimation.position().getX())  > MAX_Z_ERROR)
-
-                        || ((estimation.position().getX() > 0.0)
-                            &&  (estimation.position().getX() < APRIL_TAG_LAYOUT.getFieldLength()))
-                        || ((estimation.position().getY() > 0.0) 
-                            && (estimation.position().getY() < APRIL_TAG_LAYOUT.getFieldWidth()));
+                        || (Math.abs(estimation.position().getZ())  > MAX_Z_ERROR)
+                        || ((estimation.position().getX() < 0.0)
+                            &&  (estimation.position().getX() > APRIL_TAG_LAYOUT.getFieldLength()))
+                        || ((estimation.position().getY() < 0.0) 
+                            && (estimation.position().getY() > APRIL_TAG_LAYOUT.getFieldWidth()));
 
                 robot_poses.add(estimation.position()); // stores all robot positions for a camera
                 if (!reject_pose) {
@@ -133,7 +132,6 @@ public class Vision extends SubsystemBase {
                 }
                 */
 
-                System.out.println("CONSUMER START");
                 //sends vision data
                 
                 consumer.accepts(

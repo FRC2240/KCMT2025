@@ -99,9 +99,8 @@ public class RobotContainer {
     // driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
 
     // Intake coral
-    new Trigger(() -> {
-      return stick0.leftBumper().getAsBoolean() && !stick0.leftTrigger().getAsBoolean();
-    }).onTrue(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand()));
+    stick0.leftBumper().and(stick0.leftTrigger().negate())
+        .onTrue(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand()));
 
     // Intake Algae from ground
     stick0.leftBumper().and(stick0.leftTrigger())
