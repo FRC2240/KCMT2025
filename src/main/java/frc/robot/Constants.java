@@ -38,7 +38,7 @@ public final class Constants {
 
   public final static class ManipulatorStates {
     public static final ManipulatorState L1 = new ManipulatorState(7.83, -24.9);
-    public static final ManipulatorState L2 = new ManipulatorState(0, -10.25);
+    public static final ManipulatorState L2 = new ManipulatorState(0.17, -11.69);
     public static final ManipulatorState L3 = new ManipulatorState(11.58, -9.9);
     public static final ManipulatorState L4 = new ManipulatorState(28.55, -10.43); 
     public static final ManipulatorState IDLE = new ManipulatorState(6.82, -33.47);
@@ -53,8 +53,8 @@ public final class Constants {
     public static final Angle POST_SCORE_WRIST_ANGLE = Rotation.of(-16.83);
 
     // States where either the elevator or wrist move before the other
-    public static final ManipulatorState[] ELEVATOR_FIRST_STATES = { IDLE, L4 };
-    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE, INTAKE };
+    public static final ManipulatorState[] ELEVATOR_FIRST_STATES = { IDLE };
+    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE };
   }
 
   public final static class Alignment {
@@ -118,7 +118,7 @@ public final class Constants {
     public static final int MOTOR_ID = 5;
 
     public static final Angle OFFSET_AMOUNT = Rotations.of(2);
-    public static final Angle POSITION_THRESHOLD = Degrees.of(8); 
+    public static final Angle POSITION_THRESHOLD = Rotations.of(2); 
   }
 
   public static class Elevator {
@@ -145,7 +145,7 @@ public final class Constants {
   }
 
   public static class OperatorConstants {
-    public static final double DEADBAND = 0.5;
+    public static final double DEADBAND = 0.1;
   }
 
   public static class Candle {
@@ -164,8 +164,8 @@ public final class Constants {
     public static String CAMERA_0_NAME = "camera_0"; //probably don't change bc network tables
     public static String CAMERA_1_NAME = "camera_1"; //probably don't change bc network tables
 
-    public static double MAX_UNCERTAINTY = 0.0; // TBD
-    public static double MAX_Z_ERROR = 0.25; //TBD
+    public static double MAX_UNCERTAINTY = 0.6; // TBD
+    public static double MAX_Z_ERROR = 0.75; //TBD
 
     // Standard deviation coefficents, for 1 meter distance and 1 tag
     // (Adjusted automatically based on distance and # of tags)

@@ -125,9 +125,10 @@ public class Swerve extends SubsystemBase {
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,
                 () -> driverXbox.getLeftX() * -1)
-                .withControllerRotationAxis(driverXbox::getRightX)
+                .withControllerRotationAxis(() -> {return driverXbox.getRightX() * -2;})
                 .deadband(Constants.OperatorConstants.DEADBAND)
-                .scaleTranslation(0.8)
+                .scaleTranslation(1.5)
+                .scaleRotation(1)
                 .allianceRelativeControl(true);
     }
 
@@ -141,6 +142,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
+        System.out.println("Called");
         swerveDrive.addVisionMeasurement(robot_pose, timestamp);
     }
 

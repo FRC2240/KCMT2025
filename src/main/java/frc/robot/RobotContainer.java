@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
 import frc.robot.vision.RealLimelightVisionIO;
@@ -31,9 +31,10 @@ import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "cons
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
   final CommandXboxController stick1 = new CommandXboxController(1);
+  final CommandXboxController stick2 = new CommandXboxController(2);
 
-  private final Vision vision;
   private final Swerve drivebase = new Swerve(stick0);
+  private final Vision vision;
   private final Funnel funnel = new Funnel();
   private final Grabber grabber = new Grabber();
   private final Wrist wrist = new Wrist();
@@ -98,8 +99,9 @@ public class RobotContainer {
     // driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
 
     // Intake coral
-    stick0.leftBumper().and(stick0.leftTrigger().negate())
-        .onTrue(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand()));
+    new Trigger(() -> {
+      return stick0.leftBumper().getAsBoolean() && !stick0.leftTrigger().getAsBoolean();
+    }).onTrue(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand()));
 
     // Intake Algae from ground
     stick0.leftBumper().and(stick0.leftTrigger())
@@ -185,6 +187,9 @@ public class RobotContainer {
     // Funnel toggle
     stick1.leftTrigger()
         .toggleOnTrue(funnel.stopCommand());
+
+    stick2.a().onTrue(drivebase.sysIdDriveMotorCommand());
+    stick2.b().onTrue(drivebase.sysIdAngleMotorCommand());
   }
 
   private void configureAutos(){
@@ -208,7 +213,6 @@ public class RobotContainer {
     // Special cases where elevator moves first
     for (ManipulatorState state : ManipulatorStates.ELEVATOR_FIRST_STATES) {
       if (target.equals(state)) {
-        System.out.println("Elevator First Command");
         return elevatorCommand.andThen(wristCommand);
       }
     }
@@ -216,7 +220,6 @@ public class RobotContainer {
     // Special cases where wrist moves first
     for (ManipulatorState state : ManipulatorStates.WRIST_FIRST_STATES) {
       if (target.equals(state)) {
-        System.out.println("Wrist First Command");
         return wristCommand.andThen(elevatorCommand);
       } 
     }

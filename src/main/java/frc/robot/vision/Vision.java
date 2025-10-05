@@ -133,7 +133,7 @@ public class Vision extends SubsystemBase {
                 }
                 */
 
-                
+                System.out.println("CONSUMER START");
                 //sends vision data
                 
                 consumer.accepts(

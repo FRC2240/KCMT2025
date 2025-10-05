@@ -52,10 +52,13 @@ public class Candle extends SubsystemBase {
 
         // Default color based off alliance
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty())
-            return;
 
-        if (alliance.get().equals(Alliance.Red)) {
+
+        if (alliance.isEmpty()) {
+            larsonAnim.setR(255);
+            larsonAnim.setB(255);
+            larsonAnim.setG(255);
+        } else if (alliance.get().equals(Alliance.Red)) {
             larsonAnim.setR(255);
             larsonAnim.setB(0);
             larsonAnim.setG(0);
