@@ -131,7 +131,7 @@ public class Swerve extends SubsystemBase {
                 () -> driverXbox.getLeftY() * -1,
                 () -> driverXbox.getLeftX() * -1)
                 .withControllerRotationAxis(() -> {
-                    return driverXbox.getRightX() * -2;
+                    return driverXbox.getRightX() * -1.5;
                 })
                 .deadband(Constants.OperatorConstants.DEADBAND)
                 .scaleTranslation(1.5)
