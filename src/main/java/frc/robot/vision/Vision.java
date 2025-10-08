@@ -13,6 +13,7 @@ import static frc.robot.Constants.Vision.MAX_Z_ERROR;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipException;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -85,21 +86,30 @@ public class Vision extends SubsystemBase {
                 }
             }
 
-            //
             for (var estimation : input[i].pose_estimation_data) {
                 // confirms estimation data is with in thresholds
                 // example has many unecissary seeming conditions
                 // come back to
                 // potential point of failure
 
-                boolean reject_pose = estimation.april_tag_count() == 0 // rejects estimates made without tags
-                        || (estimation.april_tag_count() == 1
-                                && estimation.uncertainty() > MAX_UNCERTAINTY)
-                        || (Math.abs(estimation.position().getZ())  > MAX_Z_ERROR)
-                        || ((estimation.position().getX() < 0.0)
-                            &&  (estimation.position().getX() > APRIL_TAG_LAYOUT.getFieldLength()))
-                        || ((estimation.position().getY() < 0.0) 
-                            && (estimation.position().getY() > APRIL_TAG_LAYOUT.getFieldWidth()));
+                boolean tagCountInvalid = estimation.april_tag_count() == 0;
+                boolean uncertaintyInvalid = (estimation.april_tag_count() == 1 && estimation.uncertainty() > MAX_UNCERTAINTY);
+                boolean zErrorInvalid=  Math.abs(estimation.position().getZ())  > MAX_Z_ERROR;
+                boolean xOutBounds = (estimation.position().getX() < 0.0) &&  (estimation.position().getX() > APRIL_TAG_LAYOUT.getFieldLength());
+                boolean yOutBounds = (estimation.position().getY() < 0.0) && (estimation.position().getY() > APRIL_TAG_LAYOUT.getFieldWidth());
+
+                /*
+                System.out.println("TagCount: "+tagCountInvalid);
+                System.out.println("Uncertainty: " + uncertaintyInvalid);
+                System.out.println("Zerror: " +zErrorInvalid);
+                System.out.println("X Out of bounds: " + xOutBounds);
+                System.out.println("Y out of bounds: " + yOutBounds);
+                */
+
+                boolean reject_pose =  tagCountInvalid || uncertaintyInvalid || zErrorInvalid || xOutBounds || yOutBounds;
+                        
+
+                
 
                 robot_poses.add(estimation.position()); // stores all robot positions for a camera
                 if (!reject_pose) {

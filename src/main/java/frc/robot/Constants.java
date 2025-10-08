@@ -70,6 +70,8 @@ public final class Constants {
     public static final PIDController ANGLE_PID_CONTROLLER = new PIDController(5, 0, 0);
     
     public static final Distance MAX_EFFECTIVE_DIST = Meters.of(2.5);
+    public static final Distance DISTANCE_THRESHOLD = Inches.of(0.9);
+    public static final Angle ANGLE_THRESHOLD = Degrees.of(2);
 
     // REEF SIDES CODES
     //     3
@@ -161,10 +163,7 @@ public final class Constants {
     public static Transform3d CAMERA_0_POS = new Transform3d(-0.272575, 0.2413, 0.520699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(-20))); 
     public static Transform3d CAMERA_1_POS = new Transform3d(0.272575, 0.2413, 0.510699, new Rotation3d(Degrees.of(0), Degrees.of(-32), Degrees.of(20))); 
 
-    public static String CAMERA_0_NAME = "camera_0"; //probably don't change bc network tables
-    public static String CAMERA_1_NAME = "camera_1"; //probably don't change bc network tables
-
-    public static double MAX_UNCERTAINTY = 0.6; // TBD
+    public static double MAX_UNCERTAINTY = 0.3; // TBD
     public static double MAX_Z_ERROR = 0.75; //TBD
 
     // Standard deviation coefficents, for 1 meter distance and 1 tag

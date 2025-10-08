@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -31,7 +33,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -99,7 +103,7 @@ public class Swerve extends SubsystemBase {
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
-            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, startingPose);
+            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -146,6 +150,13 @@ public class Swerve extends SubsystemBase {
 
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
         swerveDrive.addVisionMeasurement(robot_pose, timestamp);
+    }
+
+    public Command fakeVisionMeasurement() {
+        return Commands.runOnce(() -> {
+            swerveDrive.addVisionMeasurement(new Pose2d(new Translation2d(3, 3), getHeading()),
+                    Timer.getFPGATimestamp());
+        }, this);
     }
 
     /**
@@ -267,14 +278,25 @@ public class Swerve extends SubsystemBase {
 
             swerveDrive.drive(speeds);
         }, this).until(() -> {
-            return joystickCooldownTimer.hasElapsed(Alignment.CONTROLLER_COOLDOWN) &&
-                    (Math.abs(driverXbox.getRightX()) > Alignment.CONTROLLER_THESHOLD ||
-                            Math.abs(driverXbox.getRightY()) > Alignment.CONTROLLER_THESHOLD ||
-                            Math.abs(driverXbox.getLeftX()) > Alignment.CONTROLLER_THESHOLD ||
-                            Math.abs(driverXbox.getLeftY()) > Alignment.CONTROLLER_THESHOLD);
-        })).andThen(() -> {
-            joystickCooldownTimer.stop();
-        });
+            Pose2d currentPose = getPose();
+            Angle currentAngle = getHeading().getMeasure();
+
+            Distance poseDistance = Meters
+                    .of(currentPose.getTranslation().minus(targetPose.getTranslation()).getNorm());
+            Angle angleDistance = currentAngle.minus(targetPose.getRotation().getMeasure());
+
+            return poseDistance.isNear(Inches.of(0), Constants.Alignment.DISTANCE_THRESHOLD)
+                    && angleDistance.isNear(Degrees.of(0), Constants.Alignment.ANGLE_THRESHOLD);
+        })
+                .until(() -> {
+                    return joystickCooldownTimer.hasElapsed(Alignment.CONTROLLER_COOLDOWN) &&
+                            (Math.abs(driverXbox.getRightX()) > Alignment.CONTROLLER_THESHOLD ||
+                                    Math.abs(driverXbox.getRightY()) > Alignment.CONTROLLER_THESHOLD ||
+                                    Math.abs(driverXbox.getLeftX()) > Alignment.CONTROLLER_THESHOLD ||
+                                    Math.abs(driverXbox.getLeftY()) > Alignment.CONTROLLER_THESHOLD);
+                })).andThen(() -> {
+                    joystickCooldownTimer.stop();
+                });
     }
 
     /**

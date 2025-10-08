@@ -4,9 +4,7 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.Vision.CAMERA_0_NAME;
 import static frc.robot.Constants.Vision.CAMERA_0_POS;
-import static frc.robot.Constants.Vision.CAMERA_1_NAME;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -53,15 +51,15 @@ public class RobotContainer {
             vision =
                 new Vision(
                     drivebase::addVisionMeasurement,
-                    new RealLimelightVisionIO(CAMERA_0_NAME, drivebase::getPitch),
-                    new RealLimelightVisionIO(CAMERA_1_NAME, drivebase::getPitch));
+                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch),
+                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch));
             break;
         case SIM :
             vision =
                 new Vision(
                     drivebase::addVisionMeasurement,
-                    new SimPhotonVisionIO(CAMERA_0_NAME, drivebase::getPose, CAMERA_0_POS),
-                    new SimPhotonVisionIO(CAMERA_1_NAME, drivebase::getPose, CAMERA_1_POS));
+                    new SimPhotonVisionIO("camera_0", drivebase::getPose, CAMERA_0_POS),
+                    new SimPhotonVisionIO("camera_1", drivebase::getPose, CAMERA_1_POS));
             break;
         default:
             vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});
@@ -97,6 +95,8 @@ public class RobotContainer {
     funnel.setDefaultCommand(funnel.spinCommand());
 
     // driverXbox.a().onTrue(drivebase.sysIdDriveMotorCommand());
+
+
 
     // Intake coral
     stick0.leftBumper().and(stick0.leftTrigger().negate())
@@ -189,6 +189,7 @@ public class RobotContainer {
 
     stick2.a().onTrue(drivebase.sysIdDriveMotorCommand());
     stick2.b().onTrue(drivebase.sysIdAngleMotorCommand());
+    stick2.x().onTrue(drivebase.fakeVisionMeasurement());
   }
 
   private void configureAutos(){
