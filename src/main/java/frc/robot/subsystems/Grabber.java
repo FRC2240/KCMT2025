@@ -4,7 +4,9 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,6 +24,7 @@ public class Grabber extends SubsystemBase {
     private TalonFX motor = new TalonFX(Constants.Grabber.MOTOR_ID);
 
     TorqueCurrentFOC req = new TorqueCurrentFOC(0);
+    VelocityDutyCycle brake = new VelocityDutyCycle(0);
     CoastOut coastReq = new CoastOut();
 
     public Grabber() {
@@ -31,7 +34,7 @@ public class Grabber extends SubsystemBase {
         conf.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         conf.Slot0.kP = 10;
         conf.Slot0.kS = 6;
-        
+
         motor.getConfigurator().apply(conf);
     }
 
@@ -55,7 +58,9 @@ public class Grabber extends SubsystemBase {
 
     public Command intakeAlgaeCommand() {
         return spinCommand(Constants.Grabber.INTAKE_ALGAE_CURRENT)
-                .withName("Intake Algae");
+                .withName("Intake Algae").until(this::has_gp).andThen(() -> {
+                    motor.setControl(brake);
+                });
     }
 
     public Command extakeAlgaeCommand() {

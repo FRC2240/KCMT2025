@@ -51,7 +51,7 @@ public class Wrist extends SubsystemBase{
             return motor.getVelocity().getValue().compareTo(RotationsPerSecond.of(1)) <= 0;
         }).andThen(() -> {
             motor.setPosition(0);
-            motor.setControl(new VoltageOut(0));
+            motor.setControl(new VoltageOut( 0));
         }, this).withName("Rezero Wrist");
     }
 
