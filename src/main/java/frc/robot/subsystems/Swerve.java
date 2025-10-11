@@ -125,13 +125,13 @@ public class Swerve extends SubsystemBase {
         swerveDrive.stopOdometryThread();
 
         setupPathPlanner();
-        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
+        //RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
 
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,
                 () -> driverXbox.getLeftX() * -1)
                 .withControllerRotationAxis(() -> {
-                    return driverXbox.getRightX() * -1.5;
+                    return driverXbox.getRightX() * -2;
                 })
                 .deadband(Constants.OperatorConstants.DEADBAND)
                 .scaleTranslation(1.5)
