@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -70,6 +71,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Swerve extends SubsystemBase {
 
+    private final Pigeon2 pigeon = new Pigeon2(48);
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
     private final Timer joystickCooldownTimer = new Timer();
@@ -118,7 +120,7 @@ public class Swerve extends SubsystemBase {
         swerveDrive.stopOdometryThread();
 
         setupPathPlanner();
-        //RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
+        zeroGyroWithAlliance();
 
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,

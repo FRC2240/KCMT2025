@@ -80,17 +80,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("algae_l2", Commands.print("start algae l2").andThen(setStateCommand(ManipulatorStates.ALGAE_L2)).andThen(Commands.print("end algae l2")));
     NamedCommands.registerCommand("algae_score", Commands.print("start algae extake").andThen(grabber.extakeAlgaeCommand()));
     NamedCommands.registerCommand("barge", Commands.print("start barge").andThen(setStateCommand(ManipulatorStates.BARGE)).andThen(Commands.print("end barge")));
-
-    // New stuff
-    NamedCommands.registerCommand("algae ground", Commands.print("start ground algae intake").andThen(setStateCommand(ManipulatorStates.GROUND_ALGAE)));
-    NamedCommands.registerCommand("algae l3", Commands.print("start algae l3").andThen(setStateCommand(ManipulatorStates.ALGAE_L3)));
-    NamedCommands.registerCommand("processor", Commands.print("start processor").andThen(setStateCommand(ManipulatorStates.PROCESSOR)));
-    NamedCommands.registerCommand("score", Commands.print("start score").andThen(scoreCommand()));
-    NamedCommands.registerCommand("extake", Commands.print("start extake").andThen(grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT)));
-    NamedCommands.registerCommand("score_l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)));
-    NamedCommands.registerCommand("l3", Commands.print("start l3").andThen(setStateCommand(ManipulatorStates.L3)));
-    NamedCommands.registerCommand("l2", Commands.print("start l2").andThen(setStateCommand(ManipulatorStates.L2)));
-    NamedCommands.registerCommand("l1", Commands.print("start l1").andThen(setStateCommand(ManipulatorStates.L1)));
     // Add auto align here
   }
 
