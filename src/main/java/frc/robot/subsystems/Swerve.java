@@ -171,7 +171,7 @@ public class Swerve extends SubsystemBase {
                     // Robot pose supplier
                     this::getPose,
                     //Function to reset odometry but pathplanner is in the matrix so it cant reset heading.
-                    pose -> {this.resetOdometry(new Pose2d(this.getPose().getTranslation(), this.getHeading()));},
+                    pose -> {this.resetOdometry(new Pose2d(pose.getTranslation(), this.getHeading()));},
                     this::getRobotVelocity,
                     // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                     (speedsRobotRelative, moduleFeedForwards) -> {
