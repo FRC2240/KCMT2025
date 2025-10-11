@@ -142,7 +142,8 @@ public class Swerve extends SubsystemBase {
     }
 
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
-        swerveDrive.addVisionMeasurement(robot_pose, timestamp);
+        // I BANNED vision from giving heading estimates 👨‍⚖️
+        swerveDrive.addVisionMeasurement(new Pose2d(robot_pose.getTranslation(), this.getHeading()), timestamp);
     }
 
     public Command fakeVisionMeasurement() {
