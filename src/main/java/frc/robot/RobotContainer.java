@@ -8,9 +8,11 @@ import static frc.robot.Constants.Vision.CAMERA_0_POS;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -234,7 +236,9 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.parallel(drivebase.driveToPose(Constants.Alignment.REEF_2_RIGHT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+
+    return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_2_RIGHT):Constants.Alignment.REEF_2_RIGHT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
     //return autoChooser.getSelected();
   }
 }
