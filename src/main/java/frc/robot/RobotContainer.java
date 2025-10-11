@@ -70,22 +70,28 @@ public class RobotContainer {
   }
 
   private void addNamedCommands() {
-    NamedCommands.registerCommand("algae intake", Commands.print("start algae intake").andThen(grabber.intakeAlgaeCommand()));
-    NamedCommands.registerCommand("algae extake", Commands.print("start algae extake").andThen(grabber.extakeAlgaeCommand()));
+    // Stuff from c++ (Last years code)
+    NamedCommands.registerCommand("l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)).andThen(Commands.print("end l4")));
+    NamedCommands.registerCommand("l2", Commands.print("start l2").andThen(setStateCommand(ManipulatorStates.L2)).andThen(Commands.print("end l2")));
+    NamedCommands.registerCommand("score_l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)).andThen(scoreCommand()).andThen(Commands.print("end score_l4")));
+    NamedCommands.registerCommand("intake", Commands.print("start intake").andThen(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand())));
+    NamedCommands.registerCommand("idle", Commands.print("start idle").andThen(setStateCommand(ManipulatorStates.IDLE).alongWith(grabber.idleCommand())).andThen(Commands.print("end idle")));
+    NamedCommands.registerCommand("algae_intake", Commands.print("start algae intake").andThen(grabber.intakeAlgaeCommand()));
+    NamedCommands.registerCommand("algae_l2", Commands.print("start algae l2").andThen(setStateCommand(ManipulatorStates.ALGAE_L2)).andThen(Commands.print("end algae l2")));
+    NamedCommands.registerCommand("algae_score", Commands.print("start algae extake").andThen(grabber.extakeAlgaeCommand()));
+    NamedCommands.registerCommand("barge", Commands.print("start barge").andThen(setStateCommand(ManipulatorStates.BARGE)).andThen(Commands.print("end barge")));
+
+    // New stuff
     NamedCommands.registerCommand("algae ground", Commands.print("start ground algae intake").andThen(setStateCommand(ManipulatorStates.GROUND_ALGAE)));
-    NamedCommands.registerCommand("algae l2", Commands.print("start algae l2").andThen(setStateCommand(ManipulatorStates.ALGAE_L2)));
     NamedCommands.registerCommand("algae l3", Commands.print("start algae l3").andThen(setStateCommand(ManipulatorStates.ALGAE_L3)));
-    NamedCommands.registerCommand("barge", Commands.print("start barge").andThen(setStateCommand(ManipulatorStates.BARGE)));
     NamedCommands.registerCommand("processor", Commands.print("start processor").andThen(setStateCommand(ManipulatorStates.PROCESSOR)));
     NamedCommands.registerCommand("score", Commands.print("start score").andThen(scoreCommand()));
-    NamedCommands.registerCommand("intake", Commands.print("start intake").andThen(setStateCommand(ManipulatorStates.INTAKE).alongWith(grabber.intakeCoralCommand())));
     NamedCommands.registerCommand("extake", Commands.print("start extake").andThen(grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT)));
-    NamedCommands.registerCommand("l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)));
+    NamedCommands.registerCommand("score_l4", Commands.print("start l4").andThen(setStateCommand(ManipulatorStates.L4)));
     NamedCommands.registerCommand("l3", Commands.print("start l3").andThen(setStateCommand(ManipulatorStates.L3)));
     NamedCommands.registerCommand("l2", Commands.print("start l2").andThen(setStateCommand(ManipulatorStates.L2)));
     NamedCommands.registerCommand("l1", Commands.print("start l1").andThen(setStateCommand(ManipulatorStates.L1)));
-    NamedCommands.registerCommand("idle", Commands.print("start idle").andThen(setStateCommand(ManipulatorStates.IDLE).alongWith(grabber.idleCommand())));
-    //Add auto align here
+    // Add auto align here
   }
 
   private void configureBindings() {
