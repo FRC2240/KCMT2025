@@ -92,13 +92,6 @@ public class Swerve extends SubsystemBase {
             }
         }
 
-        boolean blueAlliance = false;
-        Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
-                Meter.of(4)),
-                Rotation2d.fromDegrees(0))
-                : new Pose2d(new Translation2d(Meter.of(16),
-                        Meter.of(4)),
-                        Rotation2d.fromDegrees(180));
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -172,10 +165,10 @@ public class Swerve extends SubsystemBase {
             final boolean enableFeedforward = true;
             // Configure AutoBuilder last
             AutoBuilder.configure(
-                    this::getPose,
                     // Robot pose supplier
-                    this::resetOdometry,
-                    // Method to reset odometry (will be called if your auto has a starting pose)
+                    this::getPose,
+                    //Function to reset odometry but pathplanner is in the matrix so it cant reset heading.
+                    pose -> {this.resetOdometry(new Pose2d(this.getPose().getTranslation(), this.getHeading()));},
                     this::getRobotVelocity,
                     // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                     (speedsRobotRelative, moduleFeedForwards) -> {
