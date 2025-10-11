@@ -114,11 +114,11 @@ public class RobotContainer {
 
     // Goes to algae l2
     stick0.a().and(stick0.leftTrigger())
-        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L2).alongWith(grabber.idleCommand()));
+        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L2).alongWith(grabber.intakeAlgaeCommand()));
 
     // Goes to algae l3
     stick0.x().and(stick0.leftTrigger())
-        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L3).alongWith(grabber.idleCommand()));
+        .onTrue(setStateCommand(ManipulatorStates.ALGAE_L3).alongWith(grabber.intakeAlgaeCommand()));
 
     // Goes to barge
     stick0.leftTrigger().and(stick0.y())
