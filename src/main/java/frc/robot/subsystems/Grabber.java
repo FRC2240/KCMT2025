@@ -58,9 +58,7 @@ public class Grabber extends SubsystemBase {
 
     public Command intakeAlgaeCommand() {
         return spinCommand(Constants.Grabber.INTAKE_ALGAE_CURRENT)
-                .withName("Intake Algae").until(this::has_gp).andThen(() -> {
-                    motor.setControl(brake);
-                });
+                .withName("Intake Algae");
     }
 
     public Command extakeAlgaeCommand() {
@@ -72,7 +70,7 @@ public class Grabber extends SubsystemBase {
     }
 
     public Command coastCommand() {
-        return Commands.runOnce(() -> {
+        return Commands.run(() -> {
             motor.setControl(coastReq);
         }, this);
     }

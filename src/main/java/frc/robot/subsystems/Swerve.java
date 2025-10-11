@@ -92,13 +92,6 @@ public class Swerve extends SubsystemBase {
             }
         }
 
-        boolean blueAlliance = false;
-        Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
-                Meter.of(4)),
-                Rotation2d.fromDegrees(0))
-                : new Pose2d(new Translation2d(Meter.of(16),
-                        Meter.of(4)),
-                        Rotation2d.fromDegrees(180));
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -125,13 +118,13 @@ public class Swerve extends SubsystemBase {
         swerveDrive.stopOdometryThread();
 
         setupPathPlanner();
-        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
+        //RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
 
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,
                 () -> driverXbox.getLeftX() * -1)
                 .withControllerRotationAxis(() -> {
-                    return driverXbox.getRightX() * -1.5;
+                    return driverXbox.getRightX() * -2;
                 })
                 .deadband(Constants.OperatorConstants.DEADBAND)
                 .scaleTranslation(1.5)
@@ -149,7 +142,8 @@ public class Swerve extends SubsystemBase {
     }
 
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
-        swerveDrive.addVisionMeasurement(robot_pose, timestamp);
+        // I BANNED vision from giving heading estimates 👨‍⚖️
+        swerveDrive.addVisionMeasurement(new Pose2d(robot_pose.getTranslation(), this.getHeading()), timestamp);
     }
 
     public Command fakeVisionMeasurement() {
@@ -172,10 +166,10 @@ public class Swerve extends SubsystemBase {
             final boolean enableFeedforward = true;
             // Configure AutoBuilder last
             AutoBuilder.configure(
-                    this::getPose,
                     // Robot pose supplier
-                    this::resetOdometry,
-                    // Method to reset odometry (will be called if your auto has a starting pose)
+                    this::getPose,
+                    //Function to reset odometry but pathplanner is in the matrix so it cant reset heading.
+                    pose -> {this.resetOdometry(new Pose2d(this.getPose().getTranslation(), this.getHeading()));},
                     this::getRobotVelocity,
                     // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                     (speedsRobotRelative, moduleFeedForwards) -> {
