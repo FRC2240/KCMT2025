@@ -72,6 +72,6 @@ public class Grabber extends SubsystemBase {
     public Command coastCommand() {
         return Commands.run(() -> {
             motor.setControl(coastReq);
-        }, this);
+        }, this).withTimeout(.25);
     }
 }
