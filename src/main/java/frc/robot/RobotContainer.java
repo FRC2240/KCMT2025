@@ -29,7 +29,7 @@ import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "cons
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
   final CommandXboxController stick1 = new CommandXboxController(1);
-  final CommandXboxController stick2 = new CommandXboxController(2);
+  //final CommandXboxController stick2 = new CommandXboxController(2);
 
   private final Swerve drivebase = new Swerve(stick0);
   private final Vision vision;
@@ -187,9 +187,9 @@ public class RobotContainer {
     stick1.leftTrigger()
         .toggleOnTrue(funnel.stopCommand());
 
-    stick2.a().onTrue(drivebase.sysIdDriveMotorCommand());
-    stick2.b().onTrue(drivebase.sysIdAngleMotorCommand());
-    stick2.x().onTrue(drivebase.fakeVisionMeasurement());
+    //stick2.a().onTrue(drivebase.sysIdDriveMotorCommand());
+    //stick2.b().onTrue(drivebase.sysIdAngleMotorCommand());
+    //stick2.x().onTrue(drivebase.fakeVisionMeasurement());
   }
 
   private void configureAutos(){

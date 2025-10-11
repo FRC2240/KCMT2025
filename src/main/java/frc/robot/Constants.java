@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -66,12 +67,12 @@ public final class Constants {
     public static final double CONTROLLER_COOLDOWN = 0.3;
     public static final double CONTROLLER_THESHOLD = 0.2;
 
-    public static final PIDController DRIVE_PID_CONTROLLER = new PIDController(5, 0, 1);
+    public static final PIDController DRIVE_PID_CONTROLLER = new PIDController(5, 0, 0.1);
     public static final PIDController ANGLE_PID_CONTROLLER = new PIDController(5, 0, 0);
     
     public static final Distance MAX_EFFECTIVE_DIST = Meters.of(2.5);
-    public static final Distance DISTANCE_THRESHOLD = Inches.of(0.9);
-    public static final Angle ANGLE_THRESHOLD = Degrees.of(2);
+    public static final Distance DISTANCE_THRESHOLD = Inches.of(1);
+    public static final Angle ANGLE_THRESHOLD = Degrees.of(10);
 
     // REEF SIDES CODES
     //     3
@@ -137,13 +138,13 @@ public final class Constants {
     public static final int MOTOR_ID = 48;
 
     // Distance required for a game piece to be "Intaked"
-    public static Distance INTAKE_THRESHOLD = Inches.of(2);
+    public static Distance INTAKE_THRESHOLD = Millimeters.of(35);
 
     public static final Current INTAKE_CORAL_CURRENT = Amps.of(-50);
     public static final Current EXTAKE_CORAL_L1_CURRENT = Amps.of(0.5);
 
     public static final Current INTAKE_ALGAE_CURRENT = Amps.of(-120);
-    public static final Current EXTAKE_ALGAE_CURRENT = Amps.of(30);
+    public static final Current EXTAKE_ALGAE_CURRENT = Amps.of(50);
   }
 
   public static class OperatorConstants {
