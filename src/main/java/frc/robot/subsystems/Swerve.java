@@ -70,8 +70,6 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Swerve extends SubsystemBase {
-
-    private final Pigeon2 pigeon = new Pigeon2(48);
     private final SwerveDrive swerveDrive;
     private final CommandXboxController driverXbox;
     private final Timer joystickCooldownTimer = new Timer();
@@ -138,7 +136,7 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
         swerveDrive.updateOdometry();
 
-        resetOdometry(new Pose2d(getPose().getTranslation(), pigeon.getRotation2d()));
+        //resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
     }
 
     @Override
@@ -632,7 +630,7 @@ public class Swerve extends SubsystemBase {
      * @return The yaw angle
      */
     public Rotation2d getHeading() {
-        return getPose().getRotation();
+        return swerveDrive.getGyro().getRotation3d().toRotation2d();
     }
 
     /**

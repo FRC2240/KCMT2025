@@ -234,6 +234,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return Commands.parallel(drivebase.driveToPose(Constants.Alignment.REEF_2_RIGHT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    //return autoChooser.getSelected();
   }
 }
