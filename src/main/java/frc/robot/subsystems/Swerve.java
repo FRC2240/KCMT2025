@@ -137,6 +137,8 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         swerveDrive.updateOdometry();
+
+        resetOdometry(new Pose2d(getPose().getTranslation(), pigeon.getRotation2d()));
     }
 
     @Override
