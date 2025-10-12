@@ -51,6 +51,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.Alignment;
+import frc.robot.Constants.mode;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,7 +143,10 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
         swerveDrive.updateOdometry();
 
-        resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
+        if(Constants.CURRENT_MODE == mode.REAL) {
+            Commands.print("Reset Odom");
+            resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
+        }
     }
 
     @Override

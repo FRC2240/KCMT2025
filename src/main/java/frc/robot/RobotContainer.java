@@ -11,6 +11,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -53,8 +54,8 @@ public class RobotContainer {
             vision =
                 new Vision(
                     drivebase::addVisionMeasurement,
-                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch),
-                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch));
+                    new RealLimelightVisionIO("limelight-left", drivebase::getHeading),
+                    new RealLimelightVisionIO("limelight-right", drivebase::getHeading));
             break;
         case SIM :
             vision =
@@ -69,6 +70,8 @@ public class RobotContainer {
     }
     configureBindings();
     configureAutos();
+
+    drivebase.resetOdometry(new Pose2d(drivebase.getPose().getTranslation(), drivebase.getHeading()));
   }
 
   private void addNamedCommands() {
@@ -134,6 +137,8 @@ public class RobotContainer {
     // Goes to l3
     stick0.x().and(stick0.leftTrigger().negate())
         .onTrue(setStateCommand(ManipulatorStates.L3));
+
+    stick0.povDown().onTrue(Commands.runOnce(drivebase::zeroGyro, drivebase));
 
     // Goes to l2
     stick0.a().and(stick0.leftTrigger().negate())
@@ -236,9 +241,11 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+    return drivebase.driveToPose(new Pose2d(drivebase.getPose().getX() - 2, drivebase.getPose().getY(), drivebase.getPose().getRotation()));
 
-    return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    //boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+
+    //return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
     //return autoChooser.getSelected();
   }
 }
