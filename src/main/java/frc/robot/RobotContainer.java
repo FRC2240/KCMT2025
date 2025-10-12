@@ -23,7 +23,6 @@ import frc.robot.vision.RealLimelightVisionIO;
 import frc.robot.vision.SimPhotonVisionIO;
 import frc.robot.vision.BaseVisionIO;
 import frc.robot.vision.Vision;
-import frc.robot.Constants.ManipulatorStates;
 
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
@@ -51,7 +50,7 @@ public class RobotContainer {
     configureAutos();
   }
 
-  private void configureAutos(){
+  private void configureAutos(){ // This may be why they aren't running..
     autoChooser.addOption("Barge", new PathPlannerAuto("Barge"));
     autoChooser.addOption("Left 4gp", new PathPlannerAuto("left 4gp"));
     autoChooser.addOption("Right 4gp", new PathPlannerAuto("right 4gp"));
