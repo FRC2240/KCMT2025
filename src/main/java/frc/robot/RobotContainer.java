@@ -23,12 +23,11 @@ import frc.robot.vision.RealLimelightVisionIO;
 import frc.robot.vision.SimPhotonVisionIO;
 import frc.robot.vision.BaseVisionIO;
 import frc.robot.vision.Vision;
-import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "constants." on every state
+import frc.robot.Constants.ManipulatorStates;
 
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
   final CommandXboxController stick1 = new CommandXboxController(1);
-  //final CommandXboxController stick2 = new CommandXboxController(2);
 
   private final Swerve drivebase = new Swerve(stick0);
   private final Vision vision; //Warning is wrong
@@ -65,8 +64,6 @@ public class RobotContainer {
   }
 
   private void configureAutos(){
-    //autoChooser.setDefaultOption("Do Nothing", null);
-    // add autos here using format shown bellow
     autoChooser.addOption("Barge", new PathPlannerAuto("Barge"));
     autoChooser.addOption("Left 4gp", new PathPlannerAuto("left 4gp"));
     autoChooser.addOption("Right 4gp", new PathPlannerAuto("right 4gp"));
@@ -85,27 +82,23 @@ public class RobotContainer {
     ManipulatorState lastState = currentState;
     currentState = target;
 
-    Command elevatorCommand = elevator.setPositionCommand(target.elevatorPos);
-    Command wristCommand = wrist.setAngleCommand(target.wristPos);
-
     // Special cases where elevator moves first
-    for (ManipulatorState state : ManipulatorStates.ELEVATOR_FIRST_STATES) {
-      if (target.equals(state)) {
-        return elevatorCommand.andThen(wristCommand);
+      if (target.equals(ManipulatorStates.IDLE)) {
+        return elevator.setPositionCommand(target.elevatorPos).andThen(wrist.setAngleCommand(target.wristPos)); // go to e/and/w positions
       }
-    }
 
     // Special cases where wrist moves first
     for (ManipulatorState state : ManipulatorStates.WRIST_FIRST_STATES) {
-      if (target.equals(state)) {
-        return wristCommand.andThen(elevatorCommand);
+      if (target.equals(state)) { // L2 or Ground Algae
+        return wrist.setAngleCommand(target.wristPos).andThen(elevator.setPositionCommand(target.elevatorPos));
       } 
     }
+    
     if (lastState.equals(ManipulatorStates.BARGE))
-      return wristCommand.andThen(elevatorCommand);
+      return wrist.setAngleCommand(target.wristPos).andThen(elevator.setPositionCommand(target.elevatorPos));
 
     // Base case where elevator and wrist move together
-    return wristCommand.alongWith(elevatorCommand);
+    return wrist.setAngleCommand(target.wristPos).alongWith(elevator.setPositionCommand(target.elevatorPos));
   }
 
 
