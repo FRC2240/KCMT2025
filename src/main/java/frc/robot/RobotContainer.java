@@ -6,14 +6,10 @@ package frc.robot;
 
 import static frc.robot.Constants.Vision.CAMERA_0_POS;
 import static frc.robot.Constants.Vision.CAMERA_1_POS;
-
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -25,12 +21,9 @@ import frc.robot.vision.Vision;
 
 public class RobotContainer {
   final CommandXboxController stick0 = new CommandXboxController(0);
-  final CommandXboxController stick1 = new CommandXboxController(1);
 
   private final Swerve drivebase = new Swerve(stick0);
   private final Vision vision; //Warning is wrong
-
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   public RobotContainer() {
 
@@ -39,8 +32,8 @@ public class RobotContainer {
             vision =
                 new Vision( // Assuming this is what we are getting bc we get vision (right?)
                     drivebase::addVisionMeasurement,
-                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch), //Why are we using this instead of Constants.Vision.CAM_POS
-                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch)); //Why are we using this instead of Constants.Vision.CAM_POS
+                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch), //Why are we using this instead of Constants.Vision.CAM_POS, why is it different
+                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch)); 
             break;
         default: // Included for no errors
             vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});

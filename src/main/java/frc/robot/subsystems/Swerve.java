@@ -89,24 +89,19 @@ public class Swerve extends SubsystemBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot
-                                                 // via angle.
-        swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation
-        // for simulations since it causes discrepancies not seen in real life.
-        swerveDrive.setAngularVelocityCompensation(true,
-                true,
-                0.1); // Correct for skew that gets worse as angular velocity increases. Start with a
-                      // coefficient of 0.1.
-        swerveDrive.setModuleEncoderAutoSynchronize(false,
-                1); // Enable if you want to resynchronize your absolute encoders and motor encoders
-                    // periodically when they are not moving.
+        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
+        swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        swerveDrive.setAngularVelocityCompensation(true, true, 0.1); // Correct for skew that gets worse as angular velocity increases.
+        swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used
         // over the internal encoder and push the offsets onto it. Throws warning if not
         // possible
 
         swerveDrive.stopOdometryThread();
 
-        setupPathPlanner();
+        setupPathPlanner(); // This uses resetOdometry() (see the swerve.resetOdometery() inside of it for more info), 
+        //but does not reset headings, 
+        // orgin should be blue and it flips for red(check this),
         zeroGyro();
         RobotModeTriggers.autonomous().onTrue(Commands.run(()->{
             if (!isRedAlliance()) return;
@@ -134,10 +129,6 @@ public class Swerve extends SubsystemBase {
         resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
     }
 
-    @Override
-    public void simulationPeriodic() {
-    }
-
     public void addVisionMeasurement(double timestamp, Pose2d robot_pose, Matrix<N3, N1> stdevs) {
         // I BANNED vision from giving heading estimates 👨‍⚖️
         swerveDrive.addVisionMeasurement(new Pose2d(robot_pose.getTranslation(), this.getHeading()), timestamp);
@@ -154,8 +145,7 @@ public class Swerve extends SubsystemBase {
      * Setup AutoBuilder for PathPlanner.
      */
     public void setupPathPlanner() {
-        // Load the RobotConfig from the GUI settings. You should probably
-        // store this in your Constants file
+        // Load the RobotConfig from the GUI settings. You should probably store this in your Constants file
         RobotConfig config;
         try {
             config = RobotConfig.fromGUISettings();
@@ -223,7 +213,7 @@ public class Swerve extends SubsystemBase {
      * @param pathName PathPlanner path name.
      * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
      */
-    public Command getAutonomousCommand(String pathName) {
+    public Command getAutonomousCommand(String pathName) { // This is never used!!
         // Create a path following command using AutoBuilder. This will also trigger
         // event markers.
         return new PathPlannerAuto(pathName);
@@ -574,7 +564,7 @@ public class Swerve extends SubsystemBase {
 
     /**
      * Resets the gyro angle to zero and resets odometry to the same position, but
-     * facing toward 0.
+     * facing toward 0 (red alliance station).
      */
     public void zeroGyro() {
         swerveDrive.zeroGyro();
