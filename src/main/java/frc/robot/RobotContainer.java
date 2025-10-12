@@ -46,16 +46,6 @@ public class RobotContainer {
             vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});
             break;
     }
-    configureAutos();
-  }
-
-  private void configureAutos(){ // This may be why they aren't running.. Check Names please!
-    autoChooser.addOption("Barge", new PathPlannerAuto("Barge"));
-    autoChooser.addOption("Left 4gp", new PathPlannerAuto("left 4gp"));
-    autoChooser.addOption("Right 4gp", new PathPlannerAuto("right 4gp"));
-    
-
-    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
 
