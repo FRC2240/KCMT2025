@@ -241,7 +241,8 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return drivebase.driveToPose(new Pose2d(drivebase.getPose().getX() - 2, drivebase.getPose().getY(), drivebase.getPose().getRotation()));
+    return Commands.none();
+    //return drivebase.driveToPose(new Pose2d(drivebase.getPose().getX() - 2, drivebase.getPose().getY(), drivebase.getPose().getRotation()));
 
     //boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
 
