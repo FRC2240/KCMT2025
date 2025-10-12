@@ -31,13 +31,8 @@ public class RobotContainer {
 
   private final Swerve drivebase = new Swerve(stick0);
   private final Vision vision; //Warning is wrong
-  private final Grabber grabber = new Grabber();
-  private final Wrist wrist = new Wrist();
-  private final Elevator elevator = new Elevator();
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
-  private ManipulatorState currentState = Constants.ManipulatorStates.IDLE;
 
   public RobotContainer() {
 
@@ -49,14 +44,7 @@ public class RobotContainer {
                     new RealLimelightVisionIO("limelight-left", drivebase::getPitch),
                     new RealLimelightVisionIO("limelight-right", drivebase::getPitch));
             break;
-        case SIM :
-            vision =
-                new Vision(
-                    drivebase::addVisionMeasurement,
-                    new SimPhotonVisionIO("camera_0", drivebase::getPose, CAMERA_0_POS),
-                    new SimPhotonVisionIO("camera_1", drivebase::getPose, CAMERA_1_POS));
-            break;
-        default:
+        default: // Included for no errors
             vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});
             break;
     }
@@ -76,53 +64,25 @@ public class RobotContainer {
 
 
 
-  
-  
-  private Command setStateCommand(ManipulatorState target) {
-    ManipulatorState lastState = currentState;
-    currentState = target;
 
-    // Special cases where elevator moves first
-      if (target.equals(ManipulatorStates.IDLE)) {
-        return elevator.setPositionCommand(target.elevatorPos).andThen(wrist.setAngleCommand(target.wristPos)); // go to e/and/w positions
-      }
-
-    // Special cases where wrist moves first
-    for (ManipulatorState state : ManipulatorStates.WRIST_FIRST_STATES) {
-      if (target.equals(state)) { // L2 or Ground Algae
-        return wrist.setAngleCommand(target.wristPos).andThen(elevator.setPositionCommand(target.elevatorPos));
-      } 
-    }
-    
-    if (lastState.equals(ManipulatorStates.BARGE))
-      return wrist.setAngleCommand(target.wristPos).andThen(elevator.setPositionCommand(target.elevatorPos));
-
-    // Base case where elevator and wrist move together
-    return wrist.setAngleCommand(target.wristPos).alongWith(elevator.setPositionCommand(target.elevatorPos));
-  }
-
-
-
-
-
-
-
-  private Command scoreCommand() {
-    if (currentState.equals(ManipulatorStates.L1)) {
-      return grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT);
-    }
-
-    return wrist.setAngleCommand(ManipulatorStates.POST_SCORE_WRIST_ANGLE).alongWith(grabber.coastCommand());
-  }
-
-
-
-  
-  
 
   public Command getAutonomousCommand() {
     boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
 
     return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+  }
+
+
+
+
+
+  
+  
+  private Command setStateCommand(ManipulatorState target) {
+    return Commands.print("Valid code");
+  }
+
+  private Command scoreCommand() {
+    return Commands.print("Valid code");
   }
 }
