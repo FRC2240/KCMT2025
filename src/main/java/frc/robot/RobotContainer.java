@@ -238,7 +238,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
 
-    return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_2_RIGHT):Constants.Alignment.REEF_2_RIGHT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
     //return autoChooser.getSelected();
   }
 }

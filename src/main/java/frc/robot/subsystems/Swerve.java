@@ -118,7 +118,13 @@ public class Swerve extends SubsystemBase {
         swerveDrive.stopOdometryThread();
 
         setupPathPlanner();
-        zeroGyroWithAlliance();
+        zeroGyro();
+        RobotModeTriggers.autonomous().onTrue(Commands.run(()->{
+            if (!isRedAlliance()) return;
+            Pose2d currentPose = getPose();
+            // Adds 180 to gyro.
+            resetOdometry(new Pose2d(currentPose.getTranslation(), currentPose.getRotation().plus(new Rotation2d(Degrees.of(180)))));
+        }, this));
 
         driveAngularVelocity = SwerveInputStream.of(swerveDrive,
                 () -> driverXbox.getLeftY() * -1,
@@ -136,7 +142,7 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
         swerveDrive.updateOdometry();
 
-        //resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
+        resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
     }
 
     @Override
