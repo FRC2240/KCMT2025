@@ -79,18 +79,7 @@ public class Swerve extends SubsystemBase {
     public Swerve(CommandXboxController driverController) {
         driverXbox = driverController;
 
-        File directory = null;
-        // Gets the right config for the robot
-        switch (Constants.ROBOT_NAME) {
-            case SABERTOOTH: {
-                directory = new File(Filesystem.getDeployDirectory(), "swerve/sabertooth");
-                break;
-            }
-            case FRIDGE: {
-                directory = new File(Filesystem.getDeployDirectory(), "swerve/fridge");
-                break;
-            }
-        }
+        File directory = new File(Filesystem.getDeployDirectory(), "swerve/fridge");
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.

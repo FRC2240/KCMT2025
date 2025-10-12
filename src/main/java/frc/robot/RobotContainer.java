@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
 import frc.robot.vision.RealLimelightVisionIO;
-import frc.robot.vision.SimPhotonVisionIO;
 import frc.robot.vision.BaseVisionIO;
 import frc.robot.vision.Vision;
 
@@ -40,8 +39,8 @@ public class RobotContainer {
             vision =
                 new Vision( // Assuming this is what we are getting bc we get vision (right?)
                     drivebase::addVisionMeasurement,
-                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch),
-                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch));
+                    new RealLimelightVisionIO("limelight-left", drivebase::getPitch), //Why are we using this instead of Constants.Vision.CAM_POS
+                    new RealLimelightVisionIO("limelight-right", drivebase::getPitch)); //Why are we using this instead of Constants.Vision.CAM_POS
             break;
         default: // Included for no errors
             vision = new Vision(drivebase::addVisionMeasurement, new BaseVisionIO() {}, new BaseVisionIO() {});
@@ -50,7 +49,7 @@ public class RobotContainer {
     configureAutos();
   }
 
-  private void configureAutos(){ // This may be why they aren't running..
+  private void configureAutos(){ // This may be why they aren't running.. Check Names please!
     autoChooser.addOption("Barge", new PathPlannerAuto("Barge"));
     autoChooser.addOption("Left 4gp", new PathPlannerAuto("left 4gp"));
     autoChooser.addOption("Right 4gp", new PathPlannerAuto("right 4gp"));
@@ -67,8 +66,12 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-
-    return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    if (isRed) {
+      // Do Flipped drive and set e/and/w
+      return Commands.parallel(drivebase.driveToPose(FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT)), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    }
+    // Do Normal drive and set e/and/w
+    return Commands.parallel(drivebase.driveToPose(Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
   }
 
 

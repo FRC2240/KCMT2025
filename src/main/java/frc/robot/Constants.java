@@ -23,18 +23,15 @@ import frc.robot.utils.ManipulatorState;
 
 public final class Constants {
   public static enum RobotName {
-    SABERTOOTH,
     FRIDGE
   };
 
   public static enum mode{
     REAL,
-    SIM,
-    REPLAY
   }
 
   public static final RobotName ROBOT_NAME = RobotName.FRIDGE;
-  public static final mode CURRENT_MODE = (RobotBase.isReal() ? mode.REAL : mode.SIM);
+  public static final mode CURRENT_MODE = mode.REAL;
   public static final double MAX_SPEED = 4;
 
   public final static class ManipulatorStates {
@@ -50,12 +47,6 @@ public final class Constants {
     public static final ManipulatorState ALGAE_L3 = new ManipulatorState(19.2, -16.8);
     public static final ManipulatorState BARGE = new ManipulatorState(35.1, -5.1);
     public static final ManipulatorState GROUND_ALGAE = new ManipulatorState(0.133, -25.688);
-
-    public static final Angle POST_SCORE_WRIST_ANGLE = Rotation.of(-16.83);
-
-    // States where either the elevator or wrist move before the other
-    public static final ManipulatorState[] ELEVATOR_FIRST_STATES = { IDLE };
-    public static final ManipulatorState[] WRIST_FIRST_STATES = { L2, GROUND_ALGAE };
   }
 
   public final static class Alignment {
@@ -112,11 +103,6 @@ public final class Constants {
     public static final int RIGHT = 1;
   }
 
-  public static class Funnel {
-    public static final int MOTOR_ID = 33;
-    public static final int DEFAULT_CURRENT = -30;
-  }
-
   public static class Wrist {
     public static final int MOTOR_ID = 5;
 
@@ -149,11 +135,6 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final double DEADBAND = 0.1;
-  }
-
-  public static class Candle {
-    public static final int CANDLE_ID = 10;
-    public static final int LED_COUNT = 39;
   }
 
   public static class Vision {
