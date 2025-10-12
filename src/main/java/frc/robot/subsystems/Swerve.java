@@ -143,10 +143,7 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
         swerveDrive.updateOdometry();
 
-        if(Constants.CURRENT_MODE == mode.REAL) {
-            Commands.print("Reset Odom");
-            resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
-        }
+        //resetOdometry(new Pose2d(getPose().getTranslation(), swerveDrive.getGyro().getRotation3d().toRotation2d()));
     }
 
     @Override
