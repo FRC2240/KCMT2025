@@ -9,8 +9,6 @@ import static frc.robot.Constants.Vision.CAMERA_1_POS;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
-import com.pathplanner.lib.auto.NamedCommands;
-//Branch test
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -19,14 +17,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.utils.ManipulatorState;
 import frc.robot.vision.RealLimelightVisionIO;
 import frc.robot.vision.SimPhotonVisionIO;
 import frc.robot.vision.BaseVisionIO;
 import frc.robot.vision.Vision;
-import frc.robot.Constants.Alignment;
 import frc.robot.Constants.ManipulatorStates; // So i dont have to prepend "constants." on every state
 
 public class RobotContainer {
@@ -35,12 +31,10 @@ public class RobotContainer {
   //final CommandXboxController stick2 = new CommandXboxController(2);
 
   private final Swerve drivebase = new Swerve(stick0);
-  private final Vision vision;
-  private final Funnel funnel = new Funnel();
+  private final Vision vision; //Warning is wrong
   private final Grabber grabber = new Grabber();
   private final Wrist wrist = new Wrist();
   private final Elevator elevator = new Elevator();
-  private final Candle candle = new Candle(grabber::has_gp);
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -51,7 +45,7 @@ public class RobotContainer {
     switch (Constants.CURRENT_MODE) {
         case REAL:
             vision =
-                new Vision(
+                new Vision( // Assuming this is what we are getting bc we get vision (right?)
                     drivebase::addVisionMeasurement,
                     new RealLimelightVisionIO("limelight-left", drivebase::getPitch),
                     new RealLimelightVisionIO("limelight-right", drivebase::getPitch));
@@ -80,6 +74,12 @@ public class RobotContainer {
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
+
+
+
+
+
+  
   
   private Command setStateCommand(ManipulatorState target) {
     ManipulatorState lastState = currentState;
@@ -108,6 +108,12 @@ public class RobotContainer {
     return wristCommand.alongWith(elevatorCommand);
   }
 
+
+
+
+
+
+
   private Command scoreCommand() {
     if (currentState.equals(ManipulatorStates.L1)) {
       return grabber.spinCommand(Constants.Grabber.EXTAKE_CORAL_L1_CURRENT);
@@ -116,10 +122,14 @@ public class RobotContainer {
     return wrist.setAngleCommand(ManipulatorStates.POST_SCORE_WRIST_ANGLE).alongWith(grabber.coastCommand());
   }
 
+
+
+  
+  
+
   public Command getAutonomousCommand() {
     boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
 
     return Commands.parallel(drivebase.driveToPose(isRed? FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT):Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
-    //return autoChooser.getSelected();
   }
 }
