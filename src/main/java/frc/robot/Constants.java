@@ -40,10 +40,6 @@ public final class Constants {
   }
 
   public final static class Alignment {
-    // X and Y are meters, rot is degrees
-    private static Pose2d createPose(double x, double y, double rot) {
-      return new Pose2d(Meters.of(x), Meters.of(y), Rotation2d.fromDegrees(rot));
-    }
     
     public static final double CONTROLLER_COOLDOWN = 0.3;
     public static final double CONTROLLER_THESHOLD = 0.2;
@@ -54,43 +50,6 @@ public final class Constants {
     public static final Distance MAX_EFFECTIVE_DIST = Meters.of(2.5);
     public static final Distance DISTANCE_THRESHOLD = Inches.of(1);
     public static final Angle ANGLE_THRESHOLD = Degrees.of(10);
-
-    // REEF SIDES CODES
-    //     3
-    //  2 /-\ 4
-    //  1 \-/ 5
-    //     0
-    // ------- DRIVER LINE
-
-    public static final Pose2d REEF_0_LEFT = createPose(2.9237, 4.2409, -3.86);
-    public static final Pose2d REEF_0_RIGHT = createPose(2.9237, 3.8894, -2.66);
-
-    public static final Pose2d REEF_1_LEFT = createPose(3.8876, 5.4759, -62.2);
-    public static final Pose2d REEF_1_RIGHT = createPose(3.5964, 5.3152, -62.28);
-
-    public static final Pose2d REEF_2_LEFT = createPose(5.4639, 5.2550, -125.15);
-    public static final Pose2d REEF_2_RIGHT = createPose(5.1928, 5.4357, -125.31);
-
-    public static final Pose2d REEF_3_LEFT = createPose(6.0563, 3.8392, 179.56);
-    public static final Pose2d REEF_3_RIGHT = createPose(6.0563, 4.1605, 179.24);
-
-    public static final Pose2d REEF_4_LEFT = createPose(5.0724, 2.5741, 115.46);
-    public static final Pose2d REEF_4_RIGHT = createPose(5.3535, 2.7147, 115.61);
-
-    public static final Pose2d REEF_5_LEFT = createPose(3.5362, 2.7749, 58.19);
-    public static final Pose2d REEF_5_RIGHT = createPose(3.8374, 2.5842, 58.65);
-
-    public static final Pose2d[][] REEF_POSITIONS = {
-      {REEF_0_LEFT, REEF_0_RIGHT},
-      {REEF_1_LEFT, REEF_1_RIGHT},
-      {REEF_2_LEFT, REEF_2_RIGHT},
-      {REEF_3_LEFT, REEF_3_RIGHT},
-      {REEF_4_LEFT, REEF_4_RIGHT},
-      {REEF_5_LEFT, REEF_5_RIGHT}
-    };
-
-    public static final int LEFT = 0;
-    public static final int RIGHT = 1;
   }
 
   public static class OperatorConstants {

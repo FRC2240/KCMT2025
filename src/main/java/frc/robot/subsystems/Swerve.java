@@ -719,41 +719,4 @@ public class Swerve extends SubsystemBase {
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
     }
-
-    public Command alignCommand(int leftright) {
-        DriverStation.silenceJoystickConnectionWarning(true);
-        return Commands.deferredProxy(() -> {
-            Pose2d currentPose = getPose();
-
-            double bestDist = Double.MAX_VALUE;
-            int bestSide = -1;
-            for (int i = 0; i < Alignment.REEF_POSITIONS.length; i++) {
-                Pose2d[] positions = Constants.Alignment.REEF_POSITIONS[i];
-                Pose2d middlePose = positions[0].interpolate(positions[1], 0.5);
-
-                if (isRedAlliance()) {
-                    middlePose = FlippingUtil.flipFieldPose(middlePose);
-                }
-
-                double distance = currentPose.getTranslation().getDistance(middlePose.getTranslation());
-
-                if (distance < bestDist && distance < Constants.Alignment.MAX_EFFECTIVE_DIST.in(Meters)) {
-                    bestDist = distance;
-                    bestSide = i;
-                }
-            }
-
-            if (bestSide == -1) {
-                System.out.println("NONE");
-                return Commands.none();
-            }
-
-            System.out.println("side: " + bestSide + "  right: " + leftright);
-            Pose2d goalPose = Constants.Alignment.REEF_POSITIONS[bestSide][leftright];
-            if (isRedAlliance())
-                goalPose = FlippingUtil.flipFieldPose(goalPose);
-
-            return this.driveToPose(goalPose);
-        });
-    }
 }

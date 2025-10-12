@@ -51,10 +51,10 @@ public class RobotContainer {
     boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
     if (isRed) {
       // Do Flipped drive and set e/and/w
-      return Commands.parallel(drivebase.driveToPose(FlippingUtil.flipFieldPose(Constants.Alignment.REEF_4_LEFT)), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+      return Commands.none();
     }
     // Do Normal drive and set e/and/w
-    return Commands.parallel(drivebase.driveToPose(Constants.Alignment.REEF_4_LEFT), setStateCommand(Constants.ManipulatorStates.L4)).andThen(scoreCommand()).andThen(setStateCommand(Constants.ManipulatorStates.IDLE));
+    return Commands.none();
   }
 
 
